@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tandem — Amanda's HQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f4f4f7;
@@ -22,33 +24,50 @@
       --green-border: #bbf7d0;
       --red: #dc2626;
       --orange: #d97706;
+      --glass: rgba(255,255,255,0.80);
+      --glass-border: rgba(255,255,255,0.60);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body { height:100%; overflow:hidden; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-      background: var(--bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e8e0f5 0%, #f5f0ff 35%, #ffe8f4 70%, #fff0e8 100%);
+      background-attachment: fixed;
       color: var(--text);
       font-size: 13.5px;
       line-height: 1.5;
+      transition: background 0.6s ease;
+    }
+    body.has-bg-img {
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
     }
 
     /* ─── HEADER ─── */
     header {
-      height: 48px;
+      height: 52px;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 20px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
       flex-shrink: 0;
       position: relative; z-index: 20;
-      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      box-shadow: 0 1px 16px rgba(0,0,0,.06);
     }
-    .logo { font-size: 11px; font-weight: 700; letter-spacing: .15em; color: #aaa; text-transform: uppercase; }
-    .header-meta { font-size: 11.5px; color: #bbb; }
+    .logo { font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--accent); text-transform: uppercase; opacity: .7; }
+    .header-center { flex: 1; display: flex; justify-content: center; }
+    .header-meta { font-size: 11.5px; color: #bbb; display: flex; align-items: center; gap: 10px; }
+    .theme-btn {
+      background: none; border: 1px solid var(--border2); border-radius: 7px;
+      cursor: pointer; font-size: 14px; padding: 4px 8px; color: var(--text-muted);
+      transition: all .15s; line-height: 1;
+    }
+    .theme-btn:hover { background: var(--surface2); border-color: var(--accent); }
 
     /* ─── LAYOUT ─── */
-    .layout { display: grid; grid-template-columns: 1fr 330px; height: calc(100vh - 48px); }
+    .layout { display: grid; grid-template-columns: 1fr 340px; height: calc(100vh - 52px - 0px); }
     .left-col { display: flex; flex-direction: column; overflow: hidden; }
     .left-scroll {
       flex: 1; overflow-y: auto;
@@ -56,28 +75,30 @@
       display: flex; flex-direction: column; gap: 10px;
     }
     .left-scroll::-webkit-scrollbar { width: 5px; }
-    .left-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+    .left-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.1); border-radius: 3px; }
     .right-col {
-      border-left: 1px solid var(--border);
+      border-left: 1px solid var(--glass-border);
       overflow-y: auto;
       padding: 14px 14px 40px;
-      background: var(--surface);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     }
     .right-col::-webkit-scrollbar { width: 5px; }
-    .right-col::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+    .right-col::-webkit-scrollbar-thumb { background: rgba(0,0,0,.1); border-radius: 3px; }
 
     /* ─── PANELS ─── */
     .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
       overflow: visible;
-      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      box-shadow: 0 2px 16px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
     }
     .panel.today-panel {
-      border-color: var(--green-border);
+      border-color: rgba(187,247,208,.7);
       border-width: 1.5px;
-      background: var(--green-bg);
+      background: rgba(240,253,244,0.85);
     }
     .panel-hdr {
       display: flex; align-items: center; justify-content: space-between;
@@ -307,6 +328,131 @@
     .r-div { height: 1px; background: var(--border); margin: 0 0 16px; }
     .r-foot { font-size: 10.5px; color: #ccc; text-align: center; padding-top: 4px; line-height: 1.6; }
 
+    /* ─── QUOTE STRIP ─── */
+    .quote-strip {
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 24px; gap: 14px;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.5);
+      flex-shrink: 0; min-height: 44px;
+      position: relative;
+    }
+    .quote-txt {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 15px; font-style: italic; font-weight: 400;
+      color: var(--text-mid); text-align: center; flex: 1;
+      line-height: 1.45; max-width: 700px;
+    }
+    .quote-by {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 12px; color: var(--text-muted); font-weight: 400;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .quote-nav {
+      background: none; border: none; cursor: pointer; color: #ccc;
+      font-size: 13px; padding: 4px 6px; border-radius: 4px; flex-shrink: 0;
+    }
+    .quote-nav:hover { color: var(--accent); background: rgba(109,40,217,.06); }
+
+    /* ─── THEME PICKER ─── */
+    #themePicker {
+      position: fixed; top: 58px; right: 16px; z-index: 900;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border2); border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.14);
+      padding: 18px 18px 16px; width: 300px;
+      display: none;
+    }
+    #themePicker.open { display: block; }
+    .tp-head { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #bbb; margin-bottom: 12px; }
+    .theme-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+    .theme-swatch {
+      width: 100%; aspect-ratio: 1; border-radius: 9px; cursor: pointer;
+      border: 2.5px solid transparent; transition: all .15s;
+      position: relative;
+    }
+    .theme-swatch:hover { transform: scale(1.06); }
+    .theme-swatch.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(109,40,217,.15); }
+    .theme-swatch .sw-label {
+      position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+      font-size: 9px; color: var(--text-muted); white-space: nowrap;
+    }
+    .theme-swatches-wrap { padding-bottom: 20px; }
+    .tp-divider { height: 1px; background: var(--border); margin: 14px 0 12px; }
+    .tp-sub { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #bbb; margin-bottom: 8px; }
+    .theme-url-row { display: flex; gap: 6px; }
+    .theme-url-in {
+      flex: 1; border: 1.5px solid var(--border2); border-radius: 7px;
+      padding: 7px 10px; font-size: 12px; font-family: inherit; outline: none;
+      background: var(--surface2); color: var(--text);
+    }
+    .theme-url-in:focus { border-color: var(--accent); background: #fff; }
+    .theme-url-btn {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 7px; padding: 7px 12px; font-size: 12px;
+      font-family: inherit; font-weight: 600; cursor: pointer;
+    }
+    .theme-url-btn:hover { opacity: .85; }
+    .quote-edit-area {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 7px;
+      padding: 8px 10px; font-size: 12px; font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic; resize: none; outline: none; background: var(--surface2);
+      color: var(--text); line-height: 1.5; min-height: 72px;
+    }
+    .quote-edit-area:focus { border-color: var(--accent); background: #fff; }
+
+    /* ─── VISION BOARD ─── */
+    .vb-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px;
+      margin-top: 8px;
+    }
+    .vb-cell {
+      position: relative; border-radius: 8px; overflow: hidden;
+      aspect-ratio: 1.2; background: var(--surface3);
+      border: 1px solid var(--border); cursor: pointer;
+    }
+    .vb-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .vb-cell .vb-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.55));
+      color: #fff; font-size: 10px; font-weight: 600;
+      padding: 14px 7px 5px; line-height: 1.3;
+    }
+    .vb-cell .vb-del {
+      position: absolute; top: 5px; right: 5px;
+      background: rgba(0,0,0,.5); color: #fff; border: none;
+      border-radius: 50%; width: 20px; height: 20px;
+      font-size: 10px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .1s;
+    }
+    .vb-cell:hover .vb-del { opacity: 1; }
+    .vb-add {
+      aspect-ratio: 1.2; border-radius: 8px;
+      border: 1.5px dashed var(--border2); background: var(--surface2);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; cursor: pointer; gap: 5px;
+      color: #ccc; font-size: 11px; transition: all .15s;
+    }
+    .vb-add:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
+    .vb-add-icon { font-size: 22px; }
+    .vb-url-row { display: flex; gap: 6px; margin-top: 8px; }
+    .vb-url-in {
+      flex: 1; border: 1.5px solid var(--border2); border-radius: 7px;
+      padding: 7px 10px; font-size: 12px; font-family: inherit;
+      outline: none; background: var(--surface2); color: var(--text);
+    }
+    .vb-url-in:focus { border-color: var(--accent); background: #fff; }
+    .vb-url-btn {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 7px; padding: 7px 11px; font-size: 12px;
+      font-family: inherit; font-weight: 600; cursor: pointer;
+    }
+    .vb-url-btn:hover { opacity: .85; }
+    .vb-hint { font-size: 10.5px; color: #ccc; text-align: center; margin-top: 8px; }
+
     /* ─── B/C GOALS TOGGLE ─── */
     .bc-toggle {
       font-size: 11px; color: var(--text-muted); cursor: pointer;
@@ -460,8 +606,41 @@
 
 <header>
   <div class="logo">Tandem — Amanda's HQ</div>
-  <div class="header-meta" id="hdrMeta"></div>
+  <div class="header-center" id="hdrMeta"></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="theme-btn" onclick="toggleThemePicker()" title="Change background theme">🎨</button>
+    <div id="syncLbl" style="font-size:11px;color:var(--text-muted)"></div>
+  </div>
 </header>
+
+<!-- THEME PICKER PANEL -->
+<div id="themePicker">
+  <div class="tp-head">Background theme</div>
+  <div class="theme-swatches-wrap">
+    <div class="theme-grid" id="themeGrid"></div>
+  </div>
+  <div class="tp-divider"></div>
+  <div class="tp-sub">Custom image URL</div>
+  <div class="theme-url-row">
+    <input class="theme-url-in" id="themeUrlIn" type="text" placeholder="https://unsplash.com/...">
+    <button class="theme-url-btn" onclick="applyImgUrl()">Set</button>
+  </div>
+  <div class="tp-divider"></div>
+  <div class="tp-sub">Today's quote</div>
+  <textarea class="quote-edit-area" id="quoteEditArea" placeholder="Type an inspiring quote..."></textarea>
+  <div style="display:flex;gap:6px;margin-top:7px">
+    <button class="theme-url-btn" onclick="saveCustomQuote()" style="flex:1">Save quote</button>
+    <button class="theme-url-btn" onclick="shuffleQuote()" style="flex:1;background:var(--text-mid)">Shuffle ✦</button>
+  </div>
+</div>
+
+<!-- QUOTE STRIP -->
+<div class="quote-strip" id="quoteStrip">
+  <button class="quote-nav" onclick="shuffleQuote()">‹</button>
+  <div class="quote-txt" id="quoteTxt"></div>
+  <div class="quote-by" id="quoteBy"></div>
+  <button class="quote-nav" onclick="shuffleQuote()">›</button>
+</div>
 
 <div class="layout">
 
@@ -553,13 +732,9 @@
 
     <!-- DAILY HABITS -->
     <div class="rs">
-      <div class="rl">☀️ June Daily Habits</div>
-      <div class="hr-row"><div class="hd" style="background:#7c3aed"></div>Sunrise wake-up (Mon–Fri)</div>
-      <div class="hr-row"><div class="hd" style="background:#6366f1"></div>In bed 8:30pm · lights out 9pm</div>
-      <div class="hr-row"><div class="hd" style="background:#0891b2"></div>Lift session</div>
-      <div class="hr-row"><div class="hd" style="background:#059669"></div>10 min core</div>
-      <div class="hr-row"><div class="hd" style="background:#d97706"></div>Text or call 1 friend</div>
-      <div class="hr-row"><div class="hd" style="background:#dc2626"></div>Clear WhatsApps before bed</div>
+      <div class="rl">☀️ Daily Habits</div>
+      <ul class="editable-list" id="habitsList"></ul>
+      <div class="add-item-row" onclick="addListItem('habits')">+ add habit</div>
     </div>
 
     <div class="r-div"></div>
@@ -574,6 +749,19 @@
         <ul class="editable-list" id="bucketList"></ul>
         <div class="add-item-row" onclick="addListItem('bucketListItems')">+ add item</div>
       </div>
+    </div>
+
+    <div class="r-div"></div>
+
+    <!-- VISION BOARD -->
+    <div class="rs">
+      <div class="rl">🌟 Vision Board</div>
+      <div class="vb-grid" id="vbGrid"></div>
+      <div class="vb-url-row">
+        <input class="vb-url-in" id="vbUrlIn" type="text" placeholder="Paste image URL or label…">
+        <button class="vb-url-btn" onclick="vbAddUrl()">Add</button>
+      </div>
+      <div class="vb-hint">📋 Paste a screenshot directly here · or drag an image onto the grid</div>
     </div>
 
     <div class="r-div"></div>
@@ -642,6 +830,7 @@ const DEFAULTS = {
   annualGoals:    ["Launch Tandem as a real business with paying clients", "Get physically strong — run 5K, lift consistently", "Be intentional with relationships", "Create financial stability and momentum"],
   monthlyGoals:   ["Add one new client to Tandem", "Figure out 3DSole with Neil — real opportunity?", "HKH fully onboarded, Phase 1 delivered"],
   weeklyGoals:    [],
+  habits:         ["Sunrise wake-up (Mon–Fri)", "In bed by 8:30pm · lights out 9pm", "Lift session", "10 min core", "Text or call 1 friend", "Clear WhatsApps before bed"],
   bucketListItems:["Long run on the Key Biscayne bridge", "Explore a new restaurant with parents"]
 };
 
@@ -659,6 +848,8 @@ function loadState() {
   if (!s.notes)    s.notes    = {};
   if (!s.col)      s.col      = {};
   if (!s.taskData) s.taskData = {};
+  if (!s.vboard)   s.vboard   = [];
+  if (!s.theme)    s.theme    = null;
   // Merge: add new tasks, update text/bucket/priority of existing ones from CLAUDE_SYNC
   // (preserves user's done, isToday, todayOrder, dueDate, createdAt)
   const haveMap = new Map(s.tasks.map(t => [t.id, t]));
@@ -887,6 +1078,7 @@ function renderGoals() {
   renderGoalList("annualGoals","annualGoalsList");
   renderGoalList("monthlyGoals","monthlyGoalsList");
   renderGoalList("weeklyGoals","weeklyGoalsList");
+  renderGoalList("habits","habitsList");
   renderGoalList("bucketListItems","bucketList");
   ["goalA","goalB","goalC"].forEach(id=>{
     const el=document.getElementById(id);
@@ -894,6 +1086,7 @@ function renderGoals() {
   });
   const nl=document.getElementById("noList");
   if(nl&&S.notes.noList) nl.innerText=S.notes.noList;
+  vbRender();
 }
 
 // ── Goal editing ──────────────────────────────────────────────
@@ -910,7 +1103,7 @@ function liKey(e,key,i,el) {
 }
 function addListItem(key) {
   const arr=getList(key); arr.push("New item"); setList(key,arr); renderGoals();
-  const mapEl={annualGoals:"annualGoalsList",monthlyGoals:"monthlyGoalsList",weeklyGoals:"weeklyGoalsList",bucketListItems:"bucketList"};
+  const mapEl={annualGoals:"annualGoalsList",monthlyGoals:"monthlyGoalsList",weeklyGoals:"weeklyGoalsList",habits:"habitsList",bucketListItems:"bucketList"};
   requestAnimationFrame(()=>{
     const el=document.getElementById(mapEl[key]);
     if(!el) return;
@@ -1133,9 +1326,214 @@ document.addEventListener("keydown", e => {
 });
 
 // ══════════════════════════════════════════════════════════════
+//  THEMES
+// ══════════════════════════════════════════════════════════════
+const THEMES = [
+  { id:"lavender",  label:"Lavender",  bg:"linear-gradient(135deg,#e8e0f5 0%,#f5f0ff 35%,#ffe8f4 70%,#fff0e8 100%)" },
+  { id:"rose",      label:"Rose",      bg:"linear-gradient(135deg,#fce7f3 0%,#fff1f5 40%,#ffd6e7 70%,#ffe4e6 100%)" },
+  { id:"sky",       label:"Sky",       bg:"linear-gradient(135deg,#e0f2fe 0%,#f0f9ff 40%,#dbeafe 70%,#ede9fe 100%)" },
+  { id:"sage",      label:"Sage",      bg:"linear-gradient(135deg,#d1fae5 0%,#ecfdf5 40%,#f0fdf4 70%,#e0f2fe 100%)" },
+  { id:"peach",     label:"Peach",     bg:"linear-gradient(135deg,#fff7ed 0%,#fef3c7 35%,#ffe4e6 70%,#fce7f3 100%)" },
+  { id:"sand",      label:"Sand",      bg:"linear-gradient(135deg,#fefce8 0%,#fef9c3 35%,#fef3c7 70%,#fff7ed 100%)" },
+  { id:"slate",     label:"Slate",     bg:"linear-gradient(135deg,#f1f5f9 0%,#e2e8f0 35%,#f8fafc 70%,#f1f5f9 100%)" },
+  { id:"midnight",  label:"Dark",      bg:"linear-gradient(135deg,#1e1b4b 0%,#312e81 35%,#1e1b4b 70%,#0f172a 100%)" },
+];
+
+function buildThemeGrid() {
+  const grid = document.getElementById("themeGrid");
+  if (!grid) return;
+  grid.innerHTML = THEMES.map(t=>`
+<div class="theme-swatch${S.theme===t.id?" active":""}"
+  style="background:${t.bg}"
+  onclick="applyTheme('${t.id}')"
+  title="${t.label}">
+  <span class="sw-label">${t.label}</span>
+</div>`).join("");
+}
+
+function applyTheme(id) {
+  const th = THEMES.find(t=>t.id===id);
+  if (!th) return;
+  S.theme = id;
+  S.themeUrl = null;
+  save();
+  document.body.style.background = th.bg;
+  document.body.classList.remove("has-bg-img");
+  document.body.style.backgroundAttachment = "fixed";
+  buildThemeGrid();
+}
+
+function applyImgUrl() {
+  const url = document.getElementById("themeUrlIn").value.trim();
+  if (!url) return;
+  S.theme = null; S.themeUrl = url; save();
+  document.body.style.background = `url('${url}') center/cover fixed`;
+  document.body.classList.add("has-bg-img");
+  buildThemeGrid();
+  document.getElementById("themeUrlIn").value = "";
+}
+
+function toggleThemePicker() {
+  const p = document.getElementById("themePicker");
+  if (!p.classList.toggle("open")) return;
+  buildThemeGrid();
+  // Pre-fill custom quote
+  const qa = document.getElementById("quoteEditArea");
+  if (qa && _curQuote) qa.value = _curQuote.text + ((_curQuote.by&&_curQuote.by!=="—")?" — "+_curQuote.by:"");
+}
+
+// Close theme picker on outside click
+document.addEventListener("click", e=>{
+  const p = document.getElementById("themePicker");
+  const btn = document.querySelector(".theme-btn");
+  if (p && p.classList.contains("open") && !p.contains(e.target) && e.target!==btn) {
+    p.classList.remove("open");
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+//  QUOTES
+// ══════════════════════════════════════════════════════════════
+const QUOTES = [
+  { text:"She believed she could, so she did.", by:"R.S. Grey" },
+  { text:"Do the work. Get the result.", by:"—" },
+  { text:"Discipline is choosing between what you want now and what you want most.", by:"Abraham Lincoln" },
+  { text:"You don't have to be great to start, but you have to start to be great.", by:"Zig Ziglar" },
+  { text:"The secret of getting ahead is getting started.", by:"Mark Twain" },
+  { text:"Make each day your masterpiece.", by:"John Wooden" },
+  { text:"Small steps every day add up to miles.", by:"—" },
+  { text:"Be so good they can't ignore you.", by:"Steve Martin" },
+  { text:"Done is better than perfect.", by:"Sheryl Sandberg" },
+  { text:"You are capable of more than you know.", by:"—" },
+  { text:"Clarity comes from action, not thought.", by:"—" },
+  { text:"Your future self is watching you through your memories.", by:"—" },
+  { text:"Invest in yourself. Your career is the engine of your wealth.", by:"Paul Clitheroe" },
+  { text:"The way to get started is to quit talking and begin doing.", by:"Walt Disney" },
+  { text:"Energy flows where intention goes.", by:"—" },
+];
+
+let _quoteIdx = Math.floor(Math.random() * QUOTES.length);
+let _curQuote  = null;
+
+function renderQuote() {
+  // Use custom if saved
+  const custom = S.notes._customQuote;
+  if (custom) {
+    const parts = custom.split(" — ");
+    _curQuote = { text: parts.slice(0,-1).join(" — ") || custom, by: parts.length > 1 ? parts[parts.length-1] : "—" };
+  } else {
+    _curQuote = QUOTES[_quoteIdx % QUOTES.length];
+  }
+  const qtEl = document.getElementById("quoteTxt");
+  const qbEl = document.getElementById("quoteBy");
+  if (qtEl) qtEl.textContent = """ + _curQuote.text + """;
+  if (qbEl) qbEl.textContent = (_curQuote.by && _curQuote.by !== "—") ? "— " + _curQuote.by : "";
+}
+
+function shuffleQuote() {
+  S.notes._customQuote = null; save();
+  _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
+  _curQuote = null;
+  renderQuote();
+}
+
+function saveCustomQuote() {
+  const v = document.getElementById("quoteEditArea")?.value.trim();
+  if (!v) return;
+  S.notes._customQuote = v; save();
+  renderQuote();
+  document.getElementById("themePicker")?.classList.remove("open");
+  showToast("✦ Quote saved!");
+}
+
+// ══════════════════════════════════════════════════════════════
+//  VISION BOARD
+// ══════════════════════════════════════════════════════════════
+function vbRender() {
+  const grid = document.getElementById("vbGrid");
+  if (!grid) return;
+  const items = S.vboard || [];
+  grid.innerHTML = items.map((v,i)=>`
+<div class="vb-cell">
+  <img src="${v.src}" alt="vision ${i+1}" onerror="this.parentNode.style.display='none'">
+  ${v.label ? `<div class="vb-label">${esc(v.label)}</div>` : ""}
+  <button class="vb-del" onclick="vbDel(${i})">✕</button>
+</div>`).join("") + `<div class="vb-add" onclick="document.getElementById('vbUploadIn').click()">
+  <span class="vb-add-icon">＋</span><span>Add photo</span>
+</div>`;
+  // hidden file input
+  if (!document.getElementById("vbUploadIn")) {
+    const inp = document.createElement("input");
+    inp.type="file"; inp.id="vbUploadIn"; inp.accept="image/*"; inp.style.display="none";
+    inp.onchange = e => {
+      const f = e.target.files[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ev => { vbPushImage(ev.target.result, ""); inp.value=""; };
+      reader.readAsDataURL(f);
+    };
+    document.body.appendChild(inp);
+  }
+}
+
+function vbPushImage(src, label) {
+  if (!S.vboard) S.vboard = [];
+  if (S.vboard.length >= 12) { showToast("Max 12 images on vision board"); return; }
+  S.vboard.push({ src, label });
+  save(); vbRender();
+  showToast("🌟 Added to vision board!");
+}
+
+function vbDel(i) {
+  S.vboard.splice(i,1); save(); vbRender();
+}
+
+function vbAddUrl() {
+  const inp = document.getElementById("vbUrlIn");
+  const val = inp.value.trim(); if(!val) return;
+  // Check if it looks like a URL
+  if (val.startsWith("http") || val.startsWith("data:")) {
+    vbPushImage(val, "");
+  } else {
+    // Treat as a label for next image
+    showToast("Paste an image URL starting with http");
+  }
+  inp.value = "";
+}
+
+// Paste image anywhere in the right col / vision board area
+document.addEventListener("paste", e => {
+  const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+  if (!items) return;
+  // If inside task panel, let tpHandlePaste handle it
+  if (_tpId) return;
+  // Otherwise check if target is in right col
+  const inRight = e.target.closest?.(".right-col");
+  if (!inRight) return;
+  for (const item of items) {
+    if (item.type.startsWith("image/")) {
+      e.preventDefault();
+      const reader = new FileReader();
+      reader.onload = ev => vbPushImage(ev.target.result, "");
+      reader.readAsDataURL(item.getAsFile());
+      return;
+    }
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════════════
 render();
+renderQuote();
+
+// Restore theme
+if (S.themeUrl) {
+  document.body.style.background = `url('${S.themeUrl}') center/cover fixed`;
+  document.body.classList.add("has-bg-img");
+} else if (S.theme) {
+  const th = THEMES.find(t=>t.id===S.theme);
+  if (th) { document.body.style.background = th.bg; document.body.style.backgroundAttachment="fixed"; }
+}
 
 // Restore B/C open state
 if (S.goals && S.goals._bcOpen) {
