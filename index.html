@@ -306,9 +306,145 @@
 
     .r-div { height: 1px; background: var(--border); margin: 0 0 16px; }
     .r-foot { font-size: 10.5px; color: #ccc; text-align: center; padding-top: 4px; line-height: 1.6; }
+
+    /* ─── B/C GOALS TOGGLE ─── */
+    .bc-toggle {
+      font-size: 11px; color: var(--text-muted); cursor: pointer;
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 5px; margin-top: 6px;
+      border: 1px solid var(--border2); background: var(--surface2);
+      user-select: none; transition: all .1s;
+    }
+    .bc-toggle:hover { background: var(--surface3); color: var(--text-mid); }
+    .bc-goals { display: none; margin-top: 4px; }
+    .bc-goals.open { display: block; }
+
+    /* ─── UNDO TOAST ─── */
+    #undo-toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1a1a2e; color: #fff; padding: 9px 20px;
+      border-radius: 9px; font-size: 13px; z-index: 3000;
+      opacity: 0; transition: opacity .25s; pointer-events: none;
+      white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+    }
+    #undo-toast.show { opacity: 1; }
+
+    /* ─── TASK DETAIL PANEL ─── */
+    .task-panel {
+      position: fixed; top: 48px; right: 0;
+      width: 380px; height: calc(100vh - 48px);
+      background: #fff; border-left: 1px solid var(--border2);
+      box-shadow: -10px 0 40px rgba(0,0,0,.08);
+      transform: translateX(100%);
+      transition: transform .22s cubic-bezier(.4,0,.2,1);
+      z-index: 400; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .task-panel.open { transform: translateX(0); }
+    .tp-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .tp-close {
+      background: none; border: none; cursor: pointer; color: #bbb;
+      font-size: 15px; padding: 4px 7px; border-radius: 5px; line-height: 1;
+    }
+    .tp-close:hover { background: var(--surface2); color: var(--text-mid); }
+    .tp-bucket-pill {
+      font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 4px;
+      letter-spacing: .04em;
+    }
+    .tp-kbd { font-size: 10.5px; color: #bbb; margin-left: auto; }
+    .tp-body { flex: 1; overflow-y: auto; padding: 16px 18px 40px; }
+    .tp-body::-webkit-scrollbar { width: 4px; }
+    .tp-body::-webkit-scrollbar-thumb { background: #e0e0e8; border-radius: 2px; }
+    .tp-title {
+      font-size: 16px; font-weight: 600; line-height: 1.45;
+      color: var(--text); outline: none; cursor: text;
+      border-radius: 5px; padding: 3px 5px; margin-bottom: 10px;
+      border: 1px solid transparent;
+    }
+    .tp-title:focus { background: var(--surface2); border-color: var(--border); }
+    .tp-meta-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tp-sec {
+      font-size: 9.5px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: #bbb; margin: 16px 0 8px;
+    }
+    .tp-notes {
+      min-height: 100px; font-size: 13.5px; line-height: 1.75;
+      color: var(--text); outline: none;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 13px; font-family: inherit;
+      white-space: pre-wrap; word-break: break-word;
+      background: var(--surface2); width: 100%;
+    }
+    .tp-notes:focus { border-color: var(--accent); background: #fff;
+      box-shadow: 0 0 0 3px rgba(109,40,217,.05); }
+    .tp-notes:empty::before { content: attr(data-ph); color: #ccc; pointer-events: none; }
+    .tp-img-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tp-img-wrap {
+      position: relative; width: 108px; height: 86px;
+      border-radius: 7px; overflow: hidden; border: 1px solid var(--border);
+      cursor: pointer; flex-shrink: 0;
+    }
+    .tp-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .tp-img-del {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,.55); color: #fff; border: none;
+      border-radius: 50%; width: 18px; height: 18px;
+      font-size: 10px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; line-height: 1;
+    }
+    .tp-img-del:hover { background: rgba(220,38,38,.8); }
+    .tp-drop-hint {
+      font-size: 11.5px; color: #c0c0cc; margin-top: 12px;
+      border: 1.5px dashed var(--border2); border-radius: 7px;
+      padding: 12px; text-align: center; line-height: 1.6;
+    }
+    .tp-rot-note {
+      background: #fff7ed; border: 1px solid #fed7aa;
+      border-radius: 7px; padding: 9px 12px; font-size: 12px;
+      color: #9a3412; margin-bottom: 14px; line-height: 1.5;
+    }
+    /* Rot badges on task items */
+    .rot-badge {
+      font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 3px;
+      background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa;
+    }
+    .rot-badge.rot-old { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    /* Notes button */
+    .ta.notes-btn { font-size: 12px; }
+    .has-notes .ta.notes-btn { color: var(--accent); }
   </style>
 </head>
 <body>
+
+<!-- UNDO TOAST -->
+<div id="undo-toast"></div>
+
+<!-- TASK DETAIL PANEL -->
+<div class="task-panel" id="taskPanel">
+  <div class="tp-header">
+    <button class="tp-close" onclick="closeTaskPanel()" title="Close (Esc)">✕</button>
+    <span class="tp-bucket-pill" id="tpBucketPill"></span>
+    <span class="tp-kbd">Esc to close</span>
+  </div>
+  <div class="tp-body">
+    <div class="tp-title" id="tpTitle" contenteditable="true" spellcheck="false"
+      onblur="tpSaveTitle()"></div>
+    <div class="tp-meta-row" id="tpMeta"></div>
+    <div id="tpRotNote" style="display:none" class="tp-rot-note"></div>
+    <div class="tp-sec">📝 Notes &amp; Steps</div>
+    <div class="tp-notes" id="tpNotes" contenteditable="true" spellcheck="false"
+      data-ph="Add steps, context, or sub-tasks…&#10;&#10;Tip: paste a screenshot with ⌘V"
+      onblur="tpSaveNotes()"
+      onpaste="tpHandlePaste(event)"></div>
+    <div class="tp-sec">📎 Screenshots &amp; Images</div>
+    <div class="tp-img-grid" id="tpImgGrid"></div>
+    <div class="tp-drop-hint" id="tpDropHint">
+      Paste a screenshot with ⌘V (or Ctrl+V) to attach it here
+    </div>
+  </div>
+</div>
 
 <!-- DATE PICKER POPUP -->
 <div id="datepicker-wrap">
@@ -380,19 +516,22 @@
     <div class="rs">
       <div class="rl">🎯 June Monthly Goals</div>
       <div class="gc ga">
-        <div class="gt">A Goal — Shoot for this</div>
+        <div class="gt">🌟 A Goal — Shoot for this</div>
         <div class="gx" id="goalA" contenteditable="true" spellcheck="false"
           onblur="saveGoal('goalA',this)">Sign one new client + second in serious conversation</div>
       </div>
-      <div class="gc gb">
-        <div class="gt">B Goal — Success</div>
-        <div class="gx" id="goalB" contenteditable="true" spellcheck="false"
-          onblur="saveGoal('goalB',this)">Sign one new client</div>
-      </div>
-      <div class="gc gc2">
-        <div class="gt">C Goal — Minimum win</div>
-        <div class="gx" id="goalC" contenteditable="true" spellcheck="false"
-          onblur="saveGoal('goalC',this)">Two qualified prospects in active conversation</div>
+      <span class="bc-toggle" id="bcToggle" onclick="toggleBC()">▸ B &amp; C goals (backup targets)</span>
+      <div class="bc-goals" id="bcGoals">
+        <div class="gc gb" style="margin-top:6px">
+          <div class="gt">B Goal — Still a win</div>
+          <div class="gx" id="goalB" contenteditable="true" spellcheck="false"
+            onblur="saveGoal('goalB',this)">Sign one new client</div>
+        </div>
+        <div class="gc gc2">
+          <div class="gt">C Goal — Minimum acceptable</div>
+          <div class="gx" id="goalC" contenteditable="true" spellcheck="false"
+            onblur="saveGoal('goalC',this)">Two qualified prospects in active conversation</div>
+        </div>
       </div>
       <div style="margin-top:10px">
         <div class="rl" style="margin-bottom:5px">📌 This Month's Targets</div>
@@ -451,11 +590,32 @@
 const CLAUDE_SYNC = {
   lastSync: "Jun 17, 2026",
   tasks: [
-    { id:"s1", text:"HKH: Tatis follow-up call items",                           bucket:"HKH", priority:null, isToday:true,  todayOrder:0, dueDate:"2026-06-17", done:false },
-    { id:"s2", text:"HKH: Stephanie — social media + business development",       bucket:"HKH", priority:null, isToday:true,  todayOrder:1, dueDate:"2026-06-17", done:false },
-    { id:"s3", text:"HKH: Write system prompt for HKH Claude Project",            bucket:"HKH", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"s4", text:"HKH: Set up Claude account (pin Tephy) & next steps master", bucket:"HKH", priority:null, isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"s5", text:"KPI reporting HKH",                                          bucket:"HKH", priority:null, isToday:false, todayOrder:null, dueDate:null, done:false }
+    // ── HKH ──────────────────────────────────────────────────────
+    { id:"s1",  text:"HKH: Tatis follow-up call items",                               bucket:"HKH",            priority:null, isToday:true,  todayOrder:0, dueDate:"2026-06-17", done:false },
+    { id:"s2",  text:"HKH: Stephanie — social media + business development",           bucket:"HKH",            priority:null, isToday:true,  todayOrder:1, dueDate:"2026-06-17", done:false },
+    { id:"s3",  text:"HKH: Finish all Granola next steps",                             bucket:"HKH",            priority:"P1", isToday:true,  todayOrder:2, dueDate:"2026-06-17", done:false },
+    { id:"s4",  text:"HKH: Proceed with teams account switch to 5 seats",              bucket:"HKH",            priority:"P2", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s5",  text:"HKH: Write system prompt for HKH Claude Project",                bucket:"HKH",            priority:"P2", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s6",  text:"HKH: Set up Claude account (pin Tephy) & next steps master",    bucket:"HKH",            priority:null, isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s7",  text:"HKH: KPI reporting",                                             bucket:"HKH",            priority:null, isToday:false, todayOrder:null, dueDate:null,         done:false },
+    // ── FGC ──────────────────────────────────────────────────────
+    { id:"s8",  text:"FGC: Set up Claude Teams account — send pin to Fabi + Claudia", bucket:"FGC",            priority:"P1", isToday:true,  todayOrder:3, dueDate:"2026-06-17", done:false },
+    { id:"s9",  text:"FGC: Audit to-do list and plan meetings this week",              bucket:"FGC",            priority:"P1", isToday:true,  todayOrder:4, dueDate:"2026-06-17", done:false },
+    { id:"s10", text:"FGC: Team account — share update w/ Ali, check bios & team photos for site", bucket:"FGC", priority:"P2", isToday:false, todayOrder:null, dueDate:null,      done:false },
+    { id:"s11", text:"FGC: Fotos e bio do time — follow up",                           bucket:"FGC",            priority:"P2", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s12", text:"FGC: Schedule call to scope client reporting system",            bucket:"FGC",            priority:"P2", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s13", text:"FGC: Send final color brief to developer (Coastal Blue, Midnight Navy, Copper)", bucket:"FGC", priority:"P2", isToday:false, todayOrder:null, dueDate:null,   done:false },
+    { id:"s14", text:"FGC: Ask Fabi/Claudia to verify Clio plan for eSignature features", bucket:"FGC",        priority:"P3", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s15", text:"FGC: Site edits — About Us page",                                bucket:"FGC",            priority:"P3", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    // ── Orientrade ───────────────────────────────────────────────
+    { id:"s16", text:"Orientrade: Next steps from OT reporting call",                  bucket:"Orientrade",     priority:"P1", isToday:true,  todayOrder:5, dueDate:"2026-06-17", done:false },
+    // ── Tandem ───────────────────────────────────────────────────
+    { id:"s17", text:"Tandem: Update website — consulting expertise + AI workshops",   bucket:"Tandem",         priority:"P2", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s18", text:"Tandem: Email outreach — Olivia May, Elle Hempen, nonprofit contacts", bucket:"Tandem",  priority:"P2", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s19", text:"Tandem: Eric AI consulting — follow up",                         bucket:"Tandem",         priority:"P3", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    // ── Personal ─────────────────────────────────────────────────
+    { id:"s20", text:"Personal: Publish LinkedIn profile update",                      bucket:"Personal",       priority:"P2", isToday:false, todayOrder:null, dueDate:null,         done:false },
+    { id:"s21", text:"Personal: Buy basic clothing",                                   bucket:"Personal",       priority:"P3", isToday:false, todayOrder:null, dueDate:null,         done:false }
   ]
 };
 // CLAUDE_DATA_END
@@ -494,16 +654,68 @@ const TODAY = new Date().toISOString().slice(0,10);
 function loadState() {
   let s;
   try { s = JSON.parse(localStorage.getItem(SK)); } catch(_) {}
-  if (!s) s = { tasks:[], col:{}, goals:{}, notes:{} };
-  if (!s.goals) s.goals = {};
-  if (!s.notes) s.notes = {};
-  if (!s.col)   s.col   = {};
-  const have = new Set(s.tasks.map(t => t.id));
-  for (const t of CLAUDE_SYNC.tasks) { if (!have.has(t.id)) s.tasks.push({...t}); }
+  if (!s) s = { tasks:[], col:{}, goals:{}, notes:{}, taskData:{} };
+  if (!s.goals)    s.goals    = {};
+  if (!s.notes)    s.notes    = {};
+  if (!s.col)      s.col      = {};
+  if (!s.taskData) s.taskData = {};
+  // Merge: add new tasks, update text/bucket/priority of existing ones from CLAUDE_SYNC
+  // (preserves user's done, isToday, todayOrder, dueDate, createdAt)
+  const haveMap = new Map(s.tasks.map(t => [t.id, t]));
+  const now = Date.now();
+  for (const t of CLAUDE_SYNC.tasks) {
+    if (!haveMap.has(t.id)) {
+      s.tasks.push({...t, createdAt: now});
+    } else {
+      const ex = haveMap.get(t.id);
+      ex.text     = t.text;
+      ex.bucket   = t.bucket;
+      ex.priority = t.priority;
+      if (!ex.createdAt) ex.createdAt = now;
+    }
+  }
   s.lastSync = CLAUDE_SYNC.lastSync;
   return s;
 }
 function save() { localStorage.setItem(SK, JSON.stringify(S)); }
+
+// ══════════════════════════════════════════════════════════════
+//  UNDO SYSTEM
+// ══════════════════════════════════════════════════════════════
+let _undoStack = [];
+const MAX_UNDO = 30;
+
+function snapUndo(desc) {
+  _undoStack.push({ desc, tasks: JSON.parse(JSON.stringify(S.tasks)) });
+  if (_undoStack.length > MAX_UNDO) _undoStack.shift();
+}
+
+function undo() {
+  if (!_undoStack.length) { showToast("Nothing to undo"); return; }
+  const { desc, tasks } = _undoStack.pop();
+  S.tasks = tasks;
+  save();
+  render();
+  showToast("↩ Undone: " + desc);
+}
+
+let _toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("undo-toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+    const a = document.activeElement;
+    if (a && (a.isContentEditable || a.tagName === "TEXTAREA" || a.tagName === "INPUT")) return;
+    e.preventDefault();
+    undo();
+  }
+});
 
 const S = loadState();
 
@@ -525,6 +737,17 @@ function pTag(p) {
   if (!p) return "";
   const c = p==="P1"?"tag-p1":p==="P2"?"tag-p2":"tag-p3";
   return `<span class="tag ${c}">${p}</span>`;
+}
+function rotTag(t) {
+  if (t.done || !t.createdAt) return "";
+  const days = Math.floor((Date.now() - t.createdAt) / 86400000);
+  if (days < 4) return "";
+  const old = days >= 10;
+  return `<span class="rot-badge${old?" rot-old":""}" title="${days} days old">⏳ ${days}d</span>`;
+}
+function hasNotes(id) {
+  const d = S.taskData[id];
+  return d && (d.notes?.trim() || d.images?.length);
 }
 function dTag(d) {
   if (!d) return "";
@@ -569,8 +792,9 @@ function tHTML(t,ctx) {
   const unpin = ctx==="today"
     ? `<button class="ta" title="Remove from Today" onclick="unpinT('${t.id}')">↩</button>`
     : `<button class="ta" title="Pin to Today"      onclick="pinT('${t.id}')">📌</button>`;
+  const hn = hasNotes(t.id);
   return `
-<div class="task-item" id="ti-${t.id}" draggable="true"
+<div class="task-item${hn?" has-notes":""}" id="ti-${t.id}" draggable="true"
   ondragstart="tDragStart(event,'${t.id}')" ondragend="tDragEnd()"
   ondragover="tDragOver(event,'${t.id}')"   ondrop="tDropOn(event,'${t.id}')">
   <span class="grip">⋮⋮</span>
@@ -580,10 +804,11 @@ function tHTML(t,ctx) {
       onblur="saveTxt('${t.id}',this)" onkeydown="txtKey(event,'${t.id}',this)"
     >${esc(t.text)}</div>
     <div class="task-tags">
-      ${bTag(t.bucket,ctx)}${pTag(t.priority)}${dTag(t.dueDate)}
+      ${bTag(t.bucket,ctx)}${pTag(t.priority)}${dTag(t.dueDate)}${rotTag(t)}
     </div>
   </div>
   <div class="task-actions">
+    <button class="ta notes-btn" title="Open notes" onclick="openTaskPanel('${t.id}')" style="${hn?"color:var(--accent)":""}">📝</button>
     <button class="ta" onclick="cycleP('${t.id}')">${t.priority||"P·"}</button>
     <button class="ta" onclick="openDP(event,'${t.id}')">📅</button>
     ${unpin}
@@ -696,17 +921,26 @@ function addListItem(key) {
 function delListItem(key,i) { const arr=getList(key); arr.splice(i,1); setList(key,arr); renderGoals(); }
 
 // ══════════════════════════════════════════════════════════════
-//  TASK ACTIONS
+//  TASK ACTIONS  (undo-aware)
 // ══════════════════════════════════════════════════════════════
 const T=id=>S.tasks.find(t=>t.id===id);
-function toggleDone(id){const t=T(id);if(!t)return;t.done=!t.done;save();render();}
+function toggleDone(id){const t=T(id);if(!t)return;snapUndo(t.done?"Mark incomplete":"Complete task");t.done=!t.done;save();render();}
 function saveTxt(id,el){const t=T(id);if(!t)return;const v=el.innerText.trim();if(v){t.text=v;save();}else el.innerText=t.text;}
 function txtKey(e,id,el){if(e.key==="Enter"){e.preventDefault();el.blur();}if(e.key==="Escape"){const t=T(id);if(t)el.innerText=t.text;el.blur();}}
-function pinT(id){const t=T(id);if(!t)return;t.isToday=true;t.todayOrder=todayTasks().length;save();render();}
-function unpinT(id){const t=T(id);if(!t)return;t.isToday=false;if(t.dueDate===TODAY)t.dueDate=null;save();render();}
-function delTask(id){if(!confirm("Delete this task?"))return;S.tasks=S.tasks.filter(t=>t.id!==id);save();render();}
-function cycleP(id){const t=T(id);if(!t)return;const c=[null,"P1","P2","P3"];t.priority=c[(c.indexOf(t.priority)+1)%c.length];save();render();}
+function pinT(id){const t=T(id);if(!t)return;snapUndo("Pin to Today");t.isToday=true;t.todayOrder=todayTasks().length;save();render();}
+function unpinT(id){const t=T(id);if(!t)return;snapUndo("Remove from Today");t.isToday=false;if(t.dueDate===TODAY)t.dueDate=null;save();render();}
+function delTask(id){if(!confirm("Delete this task?"))return;snapUndo("Delete task");S.tasks=S.tasks.filter(t=>t.id!==id);save();render();}
+function cycleP(id){const t=T(id);if(!t)return;snapUndo("Change priority");const c=[null,"P1","P2","P3"];t.priority=c[(c.indexOf(t.priority)+1)%c.length];save();render();}
 function toggleCol(bid){if(!S.col)S.col={};S.col[bid]=!S.col[bid];save();render();}
+
+// B/C goals toggle
+function toggleBC() {
+  const panel = document.getElementById("bcGoals");
+  const btn   = document.getElementById("bcToggle");
+  const open  = panel.classList.toggle("open");
+  btn.textContent = (open ? "▾" : "▸") + " B & C goals (backup targets)";
+  S.goals._bcOpen = open; save();
+}
 
 // ══════════════════════════════════════════════════════════════
 //  DATE PICKER
@@ -744,8 +978,8 @@ function dpUpdateDow() {
   else rel=` — in ${dif} days`;
   el.textContent=dow+rel;
 }
-function dpConfirm(){const v=document.getElementById("dp-input").value;const t=T(_dpId);if(t&&v){t.dueDate=v;save();render();}dpClose();}
-function dpClear(){const t=T(_dpId);if(t){t.dueDate=null;save();render();}dpClose();}
+function dpConfirm(){const v=document.getElementById("dp-input").value;const t=T(_dpId);if(t&&v){snapUndo("Set due date");t.dueDate=v;save();render();}dpClose();}
+function dpClear(){const t=T(_dpId);if(t){snapUndo("Clear due date");t.dueDate=null;save();render();}dpClose();}
 function dpCancel(){dpClose();}
 function dpClose(){document.getElementById("datepicker-wrap").classList.remove("visible");_dpId=null;}
 document.addEventListener("click",e=>{const w=document.getElementById("datepicker-wrap");if(w.classList.contains("visible")&&!w.contains(e.target))dpClose();});
@@ -762,7 +996,7 @@ function commitAdd(bid){
   const priority=document.getElementById("ap-"+s).value||null;
   const dueDate=document.getElementById("ad-"+s).value||null;
   const pinned=document.getElementById("at-"+s).checked;
-  S.tasks.push({id:uid(),text,bucket:bid,priority,dueDate,isToday:pinned||dueDate===TODAY,todayOrder:pinned?todayTasks().length:null,done:false});
+  S.tasks.push({id:uid(),text,bucket:bid,priority,dueDate,isToday:pinned||dueDate===TODAY,todayOrder:pinned?todayTasks().length:null,done:false,createdAt:Date.now()});
   save();hideAdd(bid);render();
 }
 
@@ -773,16 +1007,145 @@ let _did=null;
 function tDragStart(e,id){_did=id;e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",id);setTimeout(()=>document.getElementById("ti-"+id)?.classList.add("dragging"),0);}
 function tDragEnd(){document.querySelectorAll(".dragging").forEach(el=>el.classList.remove("dragging"));document.querySelectorAll(".ins-before,.ins-after").forEach(el=>el.classList.remove("ins-before","ins-after"));_did=null;}
 function tDragOver(e,tid){if(!_did||tid===_did)return;e.preventDefault();e.stopPropagation();const el=document.getElementById("ti-"+tid);if(!el)return;const mid=el.getBoundingClientRect().top+el.offsetHeight/2;document.querySelectorAll(".ins-before,.ins-after").forEach(x=>x.classList.remove("ins-before","ins-after"));el.classList.add(e.clientY<mid?"ins-before":"ins-after");}
-function tDropOn(e,tid){if(!_did||tid===_did)return;e.preventDefault();e.stopPropagation();const dragT=T(_did),targetT=T(tid);if(!dragT||!targetT)return;const after=document.getElementById("ti-"+tid)?.classList.contains("ins-after");if(taskIsToday(targetT)){dragT.isToday=true;const list=todayTasks().filter(t=>t.id!==_did);const idx=list.findIndex(t=>t.id===tid);list.splice(after?idx+1:idx,0,dragT);list.forEach((t,i)=>{t.todayOrder=i;});}else{dragT.bucket=targetT.bucket;dragT.isToday=false;if(dragT.dueDate===TODAY)dragT.dueDate=null;}save();render();}
+function tDropOn(e,tid){if(!_did||tid===_did)return;e.preventDefault();e.stopPropagation();const dragT=T(_did),targetT=T(tid);if(!dragT||!targetT)return;snapUndo("Move task");const after=document.getElementById("ti-"+tid)?.classList.contains("ins-after");if(taskIsToday(targetT)){dragT.isToday=true;const list=todayTasks().filter(t=>t.id!==_did);const idx=list.findIndex(t=>t.id===tid);list.splice(after?idx+1:idx,0,dragT);list.forEach((t,i)=>{t.todayOrder=i;});}else{dragT.bucket=targetT.bucket;dragT.isToday=false;if(dragT.dueDate===TODAY)dragT.dueDate=null;}save();render();}
 function dzOver(e){e.preventDefault();}
 function dzEnter(e,zone){e.preventDefault();e.currentTarget.classList.add("dz-on");}
 function dzLeave(e){e.currentTarget.classList.remove("dz-on");}
-function dzDrop(e,zone){e.preventDefault();e.currentTarget.classList.remove("dz-on");if(!_did)return;const t=T(_did);if(!t)return;if(zone==="today"){if(!taskIsToday(t)){t.isToday=true;t.todayOrder=todayTasks().length;}}else if(zone.startsWith("bucket:")){const bid=zone.slice(7);t.bucket=bid;t.isToday=false;if(t.dueDate===TODAY)t.dueDate=null;}save();render();}
+function dzDrop(e,zone){e.preventDefault();e.currentTarget.classList.remove("dz-on");if(!_did)return;const t=T(_did);if(!t)return;snapUndo("Move task");if(zone==="today"){if(!taskIsToday(t)){t.isToday=true;t.todayOrder=todayTasks().length;}}else if(zone.startsWith("bucket:")){const bid=zone.slice(7);t.bucket=bid;t.isToday=false;if(t.dueDate===TODAY)t.dueDate=null;}save();render();}
+
+// ══════════════════════════════════════════════════════════════
+//  TASK DETAIL PANEL
+// ══════════════════════════════════════════════════════════════
+let _tpId = null;
+
+function openTaskPanel(id) {
+  _tpId = id;
+  const t = T(id);
+  if (!t) return;
+  const d = S.taskData[id] || {};
+
+  // Header bucket pill
+  const pill = document.getElementById("tpBucketPill");
+  const c = bcolor(t.bucket);
+  pill.textContent = t.bucket;
+  pill.style.cssText = `background:${c}15;color:${c};border:1px solid ${c}30`;
+
+  // Title
+  const titleEl = document.getElementById("tpTitle");
+  titleEl.innerText = t.text;
+
+  // Meta tags
+  document.getElementById("tpMeta").innerHTML =
+    pTag(t.priority) + dTag(t.dueDate);
+
+  // Rot warning
+  const rotEl = document.getElementById("tpRotNote");
+  if (t.createdAt) {
+    const days = Math.floor((Date.now() - t.createdAt) / 86400000);
+    if (days >= 4) {
+      rotEl.style.display = "";
+      rotEl.innerHTML = `⏳ This task has been on your list for <strong>${days} day${days!==1?"s":""}</strong>. Is it worth doing this week, or should it be deprioritized?`;
+    } else { rotEl.style.display = "none"; }
+  } else { rotEl.style.display = "none"; }
+
+  // Notes
+  const notesEl = document.getElementById("tpNotes");
+  notesEl.innerText = d.notes || "";
+
+  // Images
+  tpRenderImages();
+
+  document.getElementById("taskPanel").classList.add("open");
+  setTimeout(() => notesEl.focus(), 80);
+}
+
+function closeTaskPanel() {
+  tpSaveNotes();
+  document.getElementById("taskPanel").classList.remove("open");
+  _tpId = null;
+  render(); // refresh notes indicator
+}
+
+function tpSaveTitle() {
+  if (!_tpId) return;
+  const t = T(_tpId);
+  const v = document.getElementById("tpTitle").innerText.trim();
+  if (t && v) { t.text = v; save(); }
+}
+
+function tpSaveNotes() {
+  if (!_tpId) return;
+  if (!S.taskData[_tpId]) S.taskData[_tpId] = {};
+  S.taskData[_tpId].notes = document.getElementById("tpNotes").innerText;
+  save();
+}
+
+function tpRenderImages() {
+  if (!_tpId) return;
+  const imgs = (S.taskData[_tpId] || {}).images || [];
+  const grid = document.getElementById("tpImgGrid");
+  grid.innerHTML = imgs.map((src,i)=>`
+<div class="tp-img-wrap" onclick="tpViewImg(${i})">
+  <img src="${src}" alt="attachment ${i+1}">
+  <button class="tp-img-del" onclick="event.stopPropagation();tpDelImg(${i})">✕</button>
+</div>`).join("");
+  document.getElementById("tpDropHint").style.display = imgs.length >= 5 ? "none" : "";
+}
+
+function tpHandlePaste(e) {
+  const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith("image/")) {
+      e.preventDefault();
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (!_tpId) return;
+        if (!S.taskData[_tpId]) S.taskData[_tpId] = {};
+        if (!S.taskData[_tpId].images) S.taskData[_tpId].images = [];
+        if (S.taskData[_tpId].images.length >= 6) { showToast("Max 6 images per task"); return; }
+        S.taskData[_tpId].images.push(ev.target.result);
+        save(); tpRenderImages();
+        showToast("📎 Screenshot attached!");
+      };
+      reader.readAsDataURL(item.getAsFile());
+      return;
+    }
+  }
+}
+
+function tpDelImg(i) {
+  if (!_tpId || !S.taskData[_tpId]?.images) return;
+  S.taskData[_tpId].images.splice(i,1);
+  save(); tpRenderImages();
+}
+
+function tpViewImg(i) {
+  const src = S.taskData[_tpId]?.images?.[i];
+  if (!src) return;
+  const w = window.open("", "_blank");
+  w.document.write(`<style>body{margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh}</style><img src="${src}" style="max-width:100%;max-height:100vh;object-fit:contain">`);
+}
+
+// Close panel on Escape (when not editing)
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && _tpId) { closeTaskPanel(); }
+});
 
 // ══════════════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════════════
 render();
+
+// Restore B/C open state
+if (S.goals && S.goals._bcOpen) {
+  const bcPanel = document.getElementById("bcGoals");
+  const bcBtn   = document.getElementById("bcToggle");
+  if (bcPanel && bcBtn) {
+    bcPanel.classList.add("open");
+    bcBtn.textContent = "▾ B & C goals (backup targets)";
+  }
+}
 </script>
 </body>
 </html>
