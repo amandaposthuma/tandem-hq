@@ -59,10 +59,32 @@
     /* ── MAIN ── */
     .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
     .quote-strip{display:flex;align-items:center;gap:12px;padding:7px 20px;background:rgba(255,255,255,0.40);border-bottom:1px solid var(--border);flex-shrink:0;}
-    .quote-txt{font-family:'Cormorant Garamond',Georgia,serif;font-size:14.5px;font-style:italic;font-weight:300;color:var(--text-mid);text-align:center;flex:1;line-height:1.45;max-width:600px;}
+    .quote-txt{font-family:'Cormorant Garamond',Georgia,serif;font-size:14.5px;font-style:italic;font-weight:300;color:var(--text-mid);text-align:center;flex:1;line-height:1.45;max-width:600px;cursor:text;border-radius:4px;padding:2px 6px;transition:background .12s;outline:none;}
+    .quote-txt::before{content:'"';margin-right:1px;}
+    .quote-txt::after{content:'"';margin-left:1px;}
+    .quote-txt:hover{background:rgba(190,24,93,0.05);}
+    .quote-txt:focus{background:rgba(190,24,93,0.07);outline:none;}
     .quote-by{font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--text-muted);white-space:nowrap;}
     .quote-nav{background:none;border:none;cursor:pointer;color:#d0b0c0;font-size:14px;padding:3px 6px;border-radius:4px;}
     .quote-nav:hover{color:var(--rose);background:var(--rose-lt);}
+
+    /* ── VISION BOARD FULL VIEW ── */
+    .vb-full-wrap{padding:20px 24px 40px;}
+    .vb-full-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
+    .vb-full-grid .vb-cell{border-radius:12px;overflow:hidden;position:relative;aspect-ratio:4/3;box-shadow:0 2px 16px rgba(0,0,0,0.10);transition:transform .15s,box-shadow .15s;}
+    .vb-full-grid .vb-cell:hover{transform:scale(1.02);box-shadow:0 6px 24px rgba(0,0,0,0.15);}
+    .vb-full-grid .vb-cell img{width:100%;height:100%;object-fit:cover;}
+    .vb-full-grid .vb-label{position:absolute;bottom:0;left:0;right:0;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.5));color:#fff;font-size:11px;font-weight:500;}
+    .vb-full-grid .vb-del{position:absolute;top:7px;right:7px;background:rgba(0,0,0,0.45);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center;}
+    .vb-full-grid .vb-cell:hover .vb-del{display:flex;}
+    .vb-full-grid .vb-add{border-radius:12px;aspect-ratio:4/3;border:2px dashed rgba(190,24,93,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text-muted);font-size:12px;transition:all .12s;}
+    .vb-full-grid .vb-add:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-lt);}
+    .vb-full-grid .vb-add-icon{font-size:24px;}
+    .vb-full-url-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
+    .vb-full-url-in{flex:1;border:1.5px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;background:rgba(255,255,255,0.70);color:var(--text);outline:none;}
+    .vb-full-url-in:focus{border-color:var(--rose);background:#fff;box-shadow:0 0 0 3px var(--rose-lt);}
+    .vb-full-url-btn{background:var(--rose);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;}
+    .vb-full-hint{font-size:11px;color:var(--text-muted);margin-top:4px;}
     .main-header{display:flex;align-items:center;gap:12px;padding:12px 20px 10px;flex-shrink:0;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.50);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
     .main-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:400;font-style:italic;color:var(--text);flex:1;}
     .main-title-sub{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);font-weight:400;font-style:normal;margin-left:8px;}
@@ -335,6 +357,9 @@
         <span>◻</span><span>All Tasks</span>
         <span class="sb-cnt" id="cnt-all"></span>
       </div>
+      <div class="sb-item" id="nav-vboard" onclick="switchView('vboard')">
+        <span>🌸</span><span>Vision Board</span>
+      </div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-section-lbl">Clients</div>
@@ -349,7 +374,7 @@
   <div class="main">
     <div class="quote-strip">
       <button class="quote-nav" onclick="shuffleQuote()">‹</button>
-      <div class="quote-txt" id="quoteTxt"></div>
+      <div class="quote-txt" id="quoteTxt" contenteditable="true" spellcheck="false" title="Click to edit your quote" onblur="quoteBlur(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"></div>
       <div class="quote-by" id="quoteBy"></div>
       <button class="quote-nav" onclick="shuffleQuote()">›</button>
     </div>
@@ -358,7 +383,7 @@
       <div class="hdr-clock" id="hdrClock"></div>
       <button class="add-btn" onclick="showAddForm()">+ New Task</button>
     </div>
-    <div class="toolbar">
+    <div class="toolbar" id="mainToolbar">
       <div class="search-wrap">
         <span class="search-icon">⌕</span>
         <input class="search-in" id="searchIn" placeholder="Search tasks…" oninput="doSearch(this.value)">
@@ -610,10 +635,15 @@ function switchView(v){
   document.querySelectorAll(".sb-item").forEach(el=>el.classList.remove("active"));
   if(v==="today")document.getElementById("nav-today").classList.add("active");
   else if(v==="all")document.getElementById("nav-all").classList.add("active");
+  else if(v==="vboard")document.getElementById("nav-vboard").classList.add("active");
   else{const it=document.querySelector(`.sb-item[data-bid="${CSS.escape(v)}"]`);if(it)it.classList.add("active");}
   const titleEl=document.getElementById("mainTitle");
+  const isVboard=v==="vboard";
+  document.getElementById("mainToolbar").style.display=isVboard?"none":"";
+  document.querySelector(".add-btn").style.display=isVboard?"none":"";
   if(v==="today")titleEl.innerHTML='Today<span class="main-title-sub" id="mainSub"></span>';
   else if(v==="all")titleEl.innerHTML='All Tasks<span class="main-title-sub" id="mainSub"></span>';
+  else if(v==="vboard")titleEl.innerHTML='Vision Board<span class="main-title-sub" id="mainSub"></span>';
   else{const c=bcolor(v);titleEl.innerHTML=`<span style="color:${c}">${esc(blabel(v))}</span><span class="main-title-sub" id="mainSub"></span>`;}
   document.getElementById("searchIn").value="";SEARCH_Q="";
   renderTasks();renderSidebarCounts();updateMainSub();
@@ -684,7 +714,7 @@ function filterTasks(tasks){
 }
 
 function renderTasks(){
-  const el=document.getElementById("taskContent");let html="";
+  const el=document.getElementById("taskContent");if(VIEW==="vboard"){renderTasksVboard(el);return;}let html="";
   if(VIEW==="today"){
     const tasks=filterTasks(S.tasks.filter(t=>taskIsToday(t))).sort((a,b)=>(a.todayOrder??999)-(b.todayOrder??999));
     if(!tasks.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">✨</div><div class="empty-msg">Nothing due today.<br>Add a task or pin something from a client view.</div></div>`;return;}
@@ -727,6 +757,17 @@ function renderTasks(){
     html+=`<div class="add-row" onclick="showAddForm()"><span class="add-plus">+</span>Add task</div>`;
   }
   el.innerHTML=html;
+}
+function renderTasksVboard(el){
+  el.innerHTML=`<div class="vb-full-wrap">
+    <div class="vb-full-grid" id="vbFullGrid"></div>
+    <div class="vb-full-url-row">
+      <input class="vb-full-url-in" id="vbFullUrlIn" type="text" placeholder="Paste image URL… or drag & drop · ⌘V to paste a screenshot" onkeydown="if(event.key==='Enter')vbAddUrlFrom('vbFullUrlIn')">
+      <button class="vb-full-url-btn" onclick="vbAddUrlFrom('vbFullUrlIn')">Add</button>
+    </div>
+    <div class="vb-full-hint">📋 Paste a screenshot anywhere with ⌘V · drag image files onto the grid · or paste a URL above</div>
+  </div>`;
+  renderVB();
 }
 
 // TASK ACTIONS
@@ -870,11 +911,14 @@ function toggleBC(){if(!S.col)S.col={};S.col.bc=!S.col.bc;save();const open=S.co
 
 // VISION BOARD
 function renderVB(){
-  const grid=document.getElementById("vbGrid");
-  grid.innerHTML=S.vboard.map((v,i)=>`<div class="vb-cell"><img src="${v.src}" alt="${esc(v.label||"")}"><div class="vb-label">${esc(v.label||"")}</div><button class="vb-del" onclick="vbDelete(${i})">✕</button></div>`).join("")+
-    `<div class="vb-add" onclick="document.getElementById('vbUrlIn').focus()"><span class="vb-add-icon">＋</span><span>Add image</span></div>`;
+  const cellHTML=S.vboard.map((v,i)=>`<div class="vb-cell"><img src="${v.src}" alt="${esc(v.label||"")}"><div class="vb-label">${esc(v.label||"")}</div><button class="vb-del" onclick="vbDelete(${i})">✕</button></div>`).join("");
+  const g1=document.getElementById("vbGrid");
+  if(g1)g1.innerHTML=cellHTML+`<div class="vb-add" onclick="document.getElementById('vbUrlIn').focus()"><span class="vb-add-icon">＋</span><span>Add image</span></div>`;
+  const g2=document.getElementById("vbFullGrid");
+  if(g2)g2.innerHTML=cellHTML+`<div class="vb-add" onclick="document.getElementById('vbFullUrlIn').focus()"><span class="vb-add-icon">＋</span><span>Add image</span></div>`;
 }
-function vbAddUrl(){const raw=document.getElementById("vbUrlIn").value.trim();if(!raw)return;const p=raw.split("|");S.vboard.push({src:p[0],label:p[1]||""});save();renderVB();document.getElementById("vbUrlIn").value="";}
+function vbAddUrl(){vbAddUrlFrom("vbUrlIn");}
+function vbAddUrlFrom(inputId){const inp=document.getElementById(inputId);if(!inp)return;const raw=inp.value.trim();if(!raw)return;const p=raw.split("|");S.vboard.push({src:p[0],label:p[1]||""});save();renderVB();inp.value="";}
 function vbDelete(idx){S.vboard.splice(idx,1);save();renderVB();}
 document.getElementById("vbGrid").addEventListener("dragover",e=>e.preventDefault());
 document.getElementById("vbGrid").addEventListener("drop",e=>{e.preventDefault();for(const f of[...e.dataTransfer.files].filter(f=>f.type.startsWith("image/"))){const r=new FileReader();r.onload=ev=>{S.vboard.push({src:ev.target.result,label:""});save();renderVB();};r.readAsDataURL(f);}});
@@ -907,10 +951,11 @@ const QUOTES=[
   {t:"action is the foundational key to all success.",a:"Pablo Picasso"},
 ];
 let _qIdx=0;
-function initQuote(){if(S.notes?.customQuote){document.getElementById("quoteTxt").textContent='"'+S.notes.customQuote+'"';document.getElementById("quoteBy").textContent="";document.getElementById("quoteEditArea").value=S.notes.customQuote;return;}_qIdx=Math.floor(Math.random()*QUOTES.length);showQuote();}
-function showQuote(){const q=QUOTES[_qIdx];document.getElementById("quoteTxt").textContent='"'+q.t+'"';document.getElementById("quoteBy").textContent=q.a?"— "+q.a:"";}
+function initQuote(){if(S.notes?.customQuote){document.getElementById("quoteTxt").textContent=S.notes.customQuote;document.getElementById("quoteBy").textContent="";document.getElementById("quoteEditArea").value=S.notes.customQuote;return;}_qIdx=Math.floor(Math.random()*QUOTES.length);showQuote();}
+function showQuote(){const q=QUOTES[_qIdx];document.getElementById("quoteTxt").textContent=q.t;document.getElementById("quoteBy").textContent=q.a?"— "+q.a:"";}
 function shuffleQuote(){_qIdx=(_qIdx+1)%QUOTES.length;if(!S.notes)S.notes={};S.notes.customQuote=null;save();showQuote();}
-function saveCustomQuote(){const v=document.getElementById("quoteEditArea").value.trim();if(!v)return;if(!S.notes)S.notes={};S.notes.customQuote=v;save();document.getElementById("quoteTxt").textContent='"'+v+'"';document.getElementById("quoteBy").textContent="";showToast("Quote saved ✨");}
+function quoteBlur(el){const v=el.textContent.trim();if(!v){initQuote();return;}if(!S.notes)S.notes={};if(S.notes.customQuote===v)return;S.notes.customQuote=v;save();document.getElementById("quoteEditArea").value=v;document.getElementById("quoteBy").textContent="";}
+function saveCustomQuote(){const v=document.getElementById("quoteEditArea").value.trim();if(!v)return;if(!S.notes)S.notes={};S.notes.customQuote=v;save();document.getElementById("quoteTxt").textContent=v;document.getElementById("quoteBy").textContent="";showToast("Quote saved ✨");}
 
 // THEME
 const THEMES=[
