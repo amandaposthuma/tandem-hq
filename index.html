@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tandem — Amanda's HQ</title>
+  <style>
+    :root {
+      --bg: #f4f4f7;
+      --surface: #ffffff;
+      --surface2: #f0f0f5;
+      --surface3: #e8e8ef;
+      --border: #e2e2ea;
+      --border2: #d0d0da;
+      --text: #111118;
+      --text-mid: #444452;
+      --text-muted: #888898;
+      --accent: #6d28d9;
+      --accent-lt: rgba(109,40,217,.07);
+      --green: #15803d;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --red: #dc2626;
+      --orange: #d97706;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; overflow:hidden; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      height: 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      position: relative; z-index: 20;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    }
+    .logo { font-size: 11px; font-weight: 700; letter-spacing: .15em; color: #aaa; text-transform: uppercase; }
+    .header-meta { font-size: 11.5px; color: #bbb; }
+
+    /* ─── LAYOUT ─── */
+    .layout { display: grid; grid-template-columns: 1fr 330px; height: calc(100vh - 48px); }
+    .left-col { display: flex; flex-direction: column; overflow: hidden; }
+    .left-scroll {
+      flex: 1; overflow-y: auto;
+      padding: 14px 14px 60px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .left-scroll::-webkit-scrollbar { width: 5px; }
+    .left-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+    .right-col {
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 14px 14px 40px;
+      background: var(--surface);
+    }
+    .right-col::-webkit-scrollbar { width: 5px; }
+    .right-col::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+
+    /* ─── PANELS ─── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: visible;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    .panel.today-panel {
+      border-color: var(--green-border);
+      border-width: 1.5px;
+      background: var(--green-bg);
+    }
+    .panel-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px 9px;
+    }
+    .panel-title {
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .today-panel .panel-title { color: var(--green); }
+    .panel-count { font-size: 11px; color: #ccc; }
+
+    /* ─── TODAY LIST ─── */
+    .today-list {
+      min-height: 48px;
+      padding: 0 6px 10px;
+    }
+    .today-list.dz-on {
+      background: rgba(21,128,61,.06);
+      outline: 2px dashed rgba(21,128,61,.3);
+      border-radius: 6px; margin: 0 4px 4px;
+    }
+    .today-empty { padding: 10px 8px; color: #bbb; font-size: 12px; font-style: italic; }
+
+    /* ─── BUCKET ─── */
+    .bucket-hdr {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; cursor: pointer; user-select: none;
+      transition: background .1s; border-radius: 9px;
+    }
+    .bucket-hdr:hover { background: var(--surface2); }
+    .b-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .b-name { font-weight: 600; font-size: 13px; flex: 1; color: var(--text); }
+    .b-meta { font-size: 11px; color: #ccc; }
+    .b-caret { font-size: 9px; color: #ccc; transition: transform .2s; }
+    .b-caret.open { transform: rotate(90deg); }
+    .bucket-body { padding: 0 8px 8px; border-top: 1px solid var(--border); }
+    .bucket-body.collapsed { display: none; }
+    .bucket-list { min-height: 4px; padding: 4px 0 0; }
+    .bucket-list.dz-on {
+      min-height: 44px; background: var(--accent-lt);
+      outline: 2px dashed var(--accent); border-radius: 6px; padding: 4px;
+    }
+    .b-empty { padding: 6px 4px 2px; color: #ccc; font-size: 11.5px; font-style: italic; }
+
+    /* ─── TASK ITEMS ─── */
+    .task-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 7px 6px; border-radius: 7px; cursor: grab;
+      border: 1px solid transparent;
+      transition: background .1s, border-color .1s; position: relative;
+    }
+    .task-item:hover { background: var(--surface2); border-color: var(--border); }
+    .task-item:active { cursor: grabbing; }
+    .task-item.dragging { opacity: .3; }
+    .task-item.ins-before { border-top: 2px solid var(--accent); }
+    .task-item.ins-after  { border-bottom: 2px solid var(--accent); }
+
+    .grip { color: #ccc; font-size: 13px; cursor: grab; flex-shrink: 0; padding-top: 3px; user-select: none; letter-spacing: -2px; }
+    .task-item:hover .grip { color: #aaa; }
+
+    .chk {
+      width: 15px; height: 15px; border-radius: 50%;
+      border: 1.5px solid #d0d0d8; flex-shrink: 0; cursor: pointer;
+      margin-top: 3px; transition: all .15s;
+      display: flex; align-items: center; justify-content: center; background: white;
+    }
+    .chk:hover { border-color: var(--green); }
+    .chk.done { background: var(--green); border-color: var(--green); }
+    .chk.done::after { content: '✓'; font-size: 9px; color: #fff; font-weight: 700; }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-txt {
+      line-height: 1.45; word-break: break-word;
+      outline: none; cursor: text; border-radius: 3px;
+      padding: 1px 3px; color: var(--text);
+    }
+    .task-txt:focus { background: var(--surface3); }
+    .task-txt.struck { text-decoration: line-through; color: #ccc; }
+    .task-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .tag { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; letter-spacing: .03em; }
+    .tag-p1 { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .tag-p2 { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .tag-p3 { background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; }
+    .tag-dt { background: #f9fafb; color: #9ca3af; border: 1px solid #e5e7eb; }
+    .tag-dt.due-today { background: #f0fdf4; color: var(--green); border-color: var(--green-border); }
+    .tag-dt.due-over  { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .tag-bucket { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; }
+
+    .task-actions { display: none; gap: 2px; align-items: center; flex-shrink: 0; }
+    .task-item:hover .task-actions { display: flex; }
+    .ta {
+      background: none; border: none; color: #ccc; cursor: pointer;
+      padding: 3px 5px; border-radius: 4px; font-size: 11.5px;
+      transition: all .1s; line-height: 1;
+    }
+    .ta:hover { background: var(--surface3); color: var(--text-mid); }
+    .ta.del:hover { color: var(--red); }
+
+    /* ─── ADD FORM ─── */
+    .add-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px; border-radius: 6px; cursor: pointer;
+      color: #bbb; font-size: 12.5px; margin-top: 2px;
+      border: 1px dashed transparent; transition: all .1s;
+    }
+    .add-row:hover { color: var(--text-mid); border-color: #ddd; background: var(--surface2); }
+    .add-plus { font-size: 15px; color: #ccc; }
+    .add-row:hover .add-plus { color: var(--accent); }
+    .add-form { padding: 4px 2px 6px; display: none; }
+    .add-in {
+      width: 100%; background: white; border: 1.5px solid var(--accent);
+      border-radius: 7px; padding: 9px 11px; color: var(--text);
+      font-size: 13px; font-family: inherit; outline: none;
+      resize: none; line-height: 1.4; min-height: 40px;
+      box-shadow: 0 0 0 3px rgba(109,40,217,.06);
+    }
+    .add-in::placeholder { color: #ccc; }
+    .add-opts { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+    .a-opt {
+      background: white; border: 1px solid var(--border2); border-radius: 5px;
+      color: var(--text-muted); padding: 4px 9px; font-size: 11px; font-family: inherit; cursor: pointer;
+    }
+    .a-opt:hover { border-color: var(--accent); color: var(--text-mid); }
+    .add-btns { display: flex; gap: 5px; margin-left: auto; }
+    .btn-ok {
+      background: var(--accent); border: none; border-radius: 6px; color: #fff;
+      padding: 5px 14px; font-size: 12px; font-family: inherit; font-weight: 600; cursor: pointer;
+    }
+    .btn-ok:hover { opacity: .88; }
+    .btn-no {
+      background: none; border: 1px solid var(--border2); border-radius: 6px;
+      color: var(--text-muted); padding: 5px 10px; font-size: 12px; font-family: inherit; cursor: pointer;
+    }
+    .btn-no:hover { background: var(--surface2); }
+
+    /* ─── DATE PICKER POPUP ─── */
+    #datepicker-wrap {
+      position: fixed; z-index: 1000;
+      background: white; border-radius: 12px;
+      border: 1px solid var(--border2);
+      box-shadow: 0 8px 32px rgba(0,0,0,.14);
+      padding: 16px 18px 14px;
+      min-width: 272px; display: none;
+    }
+    #datepicker-wrap.visible { display: block; }
+    .dp-lbl {
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
+    }
+    #dp-input {
+      width: 100%; border: 1.5px solid var(--border2);
+      border-radius: 8px; padding: 9px 12px;
+      font-size: 14px; font-family: inherit;
+      color: var(--text); background: white; outline: none; cursor: pointer;
+    }
+    #dp-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(109,40,217,.06); }
+    #dp-dow {
+      font-size: 12.5px; color: var(--text-mid);
+      margin-top: 9px; text-align: center;
+      min-height: 18px; font-weight: 500;
+    }
+    .dp-actions { display: flex; gap: 6px; margin-top: 12px; }
+    .dp-btn {
+      flex: 1; padding: 7px; border-radius: 7px;
+      font-size: 12px; font-family: inherit; cursor: pointer;
+      border: 1px solid var(--border2);
+      background: var(--surface2); color: var(--text-mid);
+    }
+    .dp-btn.dp-ok { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+    .dp-btn.dp-clear { background: none; color: var(--red); border-color: #fecaca; }
+    .dp-btn:hover { opacity: .85; }
+
+    /* ─── RIGHT PANEL ─── */
+    .rs { margin-bottom: 18px; }
+    .rl {
+      font-size: 9.5px; font-weight: 700;
+      letter-spacing: .13em; text-transform: uppercase;
+      color: #bbb; margin-bottom: 8px;
+    }
+    .prog-row { display: flex; justify-content: space-between; font-size: 10.5px; color: #ccc; margin-bottom: 4px; }
+    .prog-track { height: 3px; background: #eee; border-radius: 2px; margin-bottom: 14px; }
+    .prog-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--green)); }
+
+    .gc { border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; border-left: 2.5px solid; }
+    .gc .gt { font-size: 8.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 3px; }
+    .gc .gx {
+      font-size: 12.5px; line-height: 1.4; color: var(--text);
+      outline: none; cursor: text; border-radius: 3px; padding: 1px;
+    }
+    .gc .gx:focus { background: rgba(0,0,0,.04); }
+    .gc.ga { background: #fefce8; border-color: #ca8a04; } .gc.ga .gt { color: #92400e; }
+    .gc.gb { background: #f0fdf4; border-color: var(--green); } .gc.gb .gt { color: var(--green); }
+    .gc.gc2 { background: #f5f3ff; border-color: var(--accent); } .gc.gc2 .gt { color: var(--accent); }
+
+    .editable-list { list-style: none; }
+    .editable-list li {
+      display: flex; gap: 8px; padding: 3px 0;
+      font-size: 12.5px; color: var(--text-mid); align-items: flex-start;
+    }
+    .editable-list li::before { content: "·"; color: #ccc; flex-shrink: 0; font-size: 17px; line-height: 1.05; }
+    .li-txt { outline: none; cursor: text; border-radius: 3px; padding: 0 2px; flex: 1; }
+    .li-txt:focus { background: var(--surface3); }
+    .li-del { opacity: 0; font-size: 11px; cursor: pointer; color: #ccc; padding: 0 3px; flex-shrink: 0; border: none; background: none; }
+    .editable-list li:hover .li-del { opacity: 1; }
+    .li-del:hover { color: var(--red) !important; }
+
+    .add-item-row {
+      display: flex; align-items: center; gap: 6px; padding: 4px;
+      color: #ccc; font-size: 12px; cursor: pointer; border-radius: 5px;
+      border: 1px dashed transparent; transition: all .1s; margin-top: 3px;
+    }
+    .add-item-row:hover { color: var(--text-mid); border-color: #ddd; background: var(--surface2); }
+
+    .hr-row { display: flex; align-items: center; gap: 8px; padding: 3.5px 0; font-size: 12.5px; color: var(--text-mid); }
+    .hd { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    .editable-note {
+      font-size: 12.5px; color: var(--text-mid); line-height: 1.5;
+      outline: none; cursor: text; border-radius: 4px; padding: 2px 4px;
+      display: block; min-height: 1.4em;
+    }
+    .editable-note:focus { background: var(--surface3); }
+
+    .r-div { height: 1px; background: var(--border); margin: 0 0 16px; }
+    .r-foot { font-size: 10.5px; color: #ccc; text-align: center; padding-top: 4px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<!-- DATE PICKER POPUP -->
+<div id="datepicker-wrap">
+  <div class="dp-lbl">Set due date</div>
+  <input type="date" id="dp-input" oninput="dpUpdateDow()">
+  <div id="dp-dow"></div>
+  <div class="dp-actions">
+    <button class="dp-btn dp-clear" onclick="dpClear()">Clear</button>
+    <button class="dp-btn" onclick="dpCancel()">Cancel</button>
+    <button class="dp-btn dp-ok" onclick="dpConfirm()">Set date</button>
+  </div>
+</div>
+
+<header>
+  <div class="logo">Tandem — Amanda's HQ</div>
+  <div class="header-meta" id="hdrMeta"></div>
+</header>
+
+<div class="layout">
+
+  <!-- ══ LEFT ══ -->
+  <div class="left-col">
+    <div class="left-scroll">
+
+      <!-- TODAY PRIORITIES -->
+      <div class="panel today-panel">
+        <div class="panel-hdr">
+          <span class="panel-title">📌 Today's Action Items</span>
+          <span class="panel-count" id="todayCnt"></span>
+        </div>
+        <div class="today-list" id="todayList"
+          ondragover="dzOver(event)"
+          ondragenter="dzEnter(event,'today')"
+          ondragleave="dzLeave(event)"
+          ondrop="dzDrop(event,'today')">
+        </div>
+      </div>
+
+      <!-- BUCKETS -->
+      <div id="bucketsWrap"></div>
+
+    </div>
+  </div>
+
+  <!-- ══ RIGHT ══ -->
+  <div class="right-col">
+
+    <!-- JUNE PROGRESS -->
+    <div class="rs">
+      <div class="rl">🗓 June 2026</div>
+      <div class="prog-row">
+        <span>Jun 1</span>
+        <span id="progLbl" style="font-weight:600;color:var(--text-mid)"></span>
+        <span>Jun 30</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+
+    <!-- ANNUAL GOALS -->
+    <div class="rs">
+      <div class="rl">🏆 2026 Annual Goals</div>
+      <ul class="editable-list" id="annualGoalsList"></ul>
+      <div class="add-item-row" onclick="addListItem('annualGoals')">+ add annual goal</div>
+    </div>
+
+    <div class="r-div"></div>
+
+    <!-- MONTHLY GOALS -->
+    <div class="rs">
+      <div class="rl">🎯 June Monthly Goals</div>
+      <div class="gc ga">
+        <div class="gt">A Goal — Shoot for this</div>
+        <div class="gx" id="goalA" contenteditable="true" spellcheck="false"
+          onblur="saveGoal('goalA',this)">Sign one new client + second in serious conversation</div>
+      </div>
+      <div class="gc gb">
+        <div class="gt">B Goal — Success</div>
+        <div class="gx" id="goalB" contenteditable="true" spellcheck="false"
+          onblur="saveGoal('goalB',this)">Sign one new client</div>
+      </div>
+      <div class="gc gc2">
+        <div class="gt">C Goal — Minimum win</div>
+        <div class="gx" id="goalC" contenteditable="true" spellcheck="false"
+          onblur="saveGoal('goalC',this)">Two qualified prospects in active conversation</div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="rl" style="margin-bottom:5px">📌 This Month's Targets</div>
+        <ul class="editable-list" id="monthlyGoalsList"></ul>
+        <div class="add-item-row" onclick="addListItem('monthlyGoals')">+ add target</div>
+      </div>
+    </div>
+
+    <div class="r-div"></div>
+
+    <!-- WEEKLY GOALS -->
+    <div class="rs">
+      <div class="rl">📅 This Week's Goals</div>
+      <ul class="editable-list" id="weeklyGoalsList"></ul>
+      <div class="add-item-row" onclick="addListItem('weeklyGoals')">+ add weekly goal</div>
+    </div>
+
+    <div class="r-div"></div>
+
+    <!-- DAILY HABITS -->
+    <div class="rs">
+      <div class="rl">☀️ June Daily Habits</div>
+      <div class="hr-row"><div class="hd" style="background:#7c3aed"></div>Sunrise wake-up (Mon–Fri)</div>
+      <div class="hr-row"><div class="hd" style="background:#6366f1"></div>In bed 8:30pm · lights out 9pm</div>
+      <div class="hr-row"><div class="hd" style="background:#0891b2"></div>Lift session</div>
+      <div class="hr-row"><div class="hd" style="background:#059669"></div>10 min core</div>
+      <div class="hr-row"><div class="hd" style="background:#d97706"></div>Text or call 1 friend</div>
+      <div class="hr-row"><div class="hd" style="background:#dc2626"></div>Clear WhatsApps before bed</div>
+    </div>
+
+    <div class="r-div"></div>
+
+    <!-- NO LIST + BUCKET LIST -->
+    <div class="rs">
+      <div class="rl" style="margin-bottom:5px">🚫 No List</div>
+      <span class="editable-note" id="noList" contenteditable="true" spellcheck="false"
+        onblur="saveNote('noList',this)">No going to bed after 9pm. In bed by 8:30pm, lights out by 9pm every night.</span>
+      <div style="margin-top:12px">
+        <div class="rl" style="margin-bottom:5px">⭐ Bucket List</div>
+        <ul class="editable-list" id="bucketList"></ul>
+        <div class="add-item-row" onclick="addListItem('bucketListItems')">+ add item</div>
+      </div>
+    </div>
+
+    <div class="r-div"></div>
+    <div class="r-foot">Click any text to edit · Changes save automatically in your browser</div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  CLAUDE SYNC
+// ══════════════════════════════════════════════════════════════
+// CLAUDE_DATA_START
+const CLAUDE_SYNC = {
+  lastSync: "Jun 17, 2026",
+  tasks: [
+    { id:"s1", text:"HKH: Tatis follow-up call items",                           bucket:"HKH", priority:null, isToday:true,  todayOrder:0, dueDate:"2026-06-17", done:false },
+    { id:"s2", text:"HKH: Stephanie — social media + business development",       bucket:"HKH", priority:null, isToday:true,  todayOrder:1, dueDate:"2026-06-17", done:false },
+    { id:"s3", text:"HKH: Write system prompt for HKH Claude Project",            bucket:"HKH", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"s4", text:"HKH: Set up Claude account (pin Tephy) & next steps master", bucket:"HKH", priority:null, isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"s5", text:"KPI reporting HKH",                                          bucket:"HKH", priority:null, isToday:false, todayOrder:null, dueDate:null, done:false }
+  ]
+};
+// CLAUDE_DATA_END
+
+// ══════════════════════════════════════════════════════════════
+//  BUCKETS
+// ══════════════════════════════════════════════════════════════
+const BUCKETS = [
+  { id:"HKH",            color:"#7c3aed" },
+  { id:"Anne & Antonio", color:"#0891b2" },
+  { id:"Strides",        color:"#059669" },
+  { id:"Orientrade",     color:"#d97706" },
+  { id:"FGC",            color:"#dc2626" },
+  { id:"3DSole",         color:"#9333ea" },
+  { id:"Goose AI",       color:"#10b981" },
+  { id:"Tandem",         color:"#6366f1" },
+  { id:"Personal",       color:"#94a3b8" }
+];
+
+// ══════════════════════════════════════════════════════════════
+//  DEFAULT GOAL DATA
+// ══════════════════════════════════════════════════════════════
+const DEFAULTS = {
+  annualGoals:    ["Launch Tandem as a real business with paying clients", "Get physically strong — run 5K, lift consistently", "Be intentional with relationships", "Create financial stability and momentum"],
+  monthlyGoals:   ["Add one new client to Tandem", "Figure out 3DSole with Neil — real opportunity?", "HKH fully onboarded, Phase 1 delivered"],
+  weeklyGoals:    [],
+  bucketListItems:["Long run on the Key Biscayne bridge", "Explore a new restaurant with parents"]
+};
+
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+const SK    = "tandem_hq_v3";
+const TODAY = new Date().toISOString().slice(0,10);
+
+function loadState() {
+  let s;
+  try { s = JSON.parse(localStorage.getItem(SK)); } catch(_) {}
+  if (!s) s = { tasks:[], col:{}, goals:{}, notes:{} };
+  if (!s.goals) s.goals = {};
+  if (!s.notes) s.notes = {};
+  if (!s.col)   s.col   = {};
+  const have = new Set(s.tasks.map(t => t.id));
+  for (const t of CLAUDE_SYNC.tasks) { if (!have.has(t.id)) s.tasks.push({...t}); }
+  s.lastSync = CLAUDE_SYNC.lastSync;
+  return s;
+}
+function save() { localStorage.setItem(SK, JSON.stringify(S)); }
+
+const S = loadState();
+
+// ══════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════
+const uid   = () => "u" + Math.random().toString(36).slice(2,11);
+const esc   = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const bsafe = b => b.replace(/[\s&]/g,"_");
+
+function taskIsToday(t) { return t.isToday===true || t.dueDate===TODAY; }
+function todayTasks()   { return S.tasks.filter(t=>!t.done&&taskIsToday(t)).sort((a,b)=>(a.todayOrder??999)-(b.todayOrder??999)); }
+function bucketTasks(b) { return S.tasks.filter(t=>!t.done&&!taskIsToday(t)&&t.bucket===b); }
+function bcolor(bid)    { return (BUCKETS.find(b=>b.id===bid)||{color:"#999"}).color; }
+function getList(key)   { return S.goals[key] ?? [...DEFAULTS[key]]; }
+function setList(key,arr){ S.goals[key]=arr; save(); }
+
+function pTag(p) {
+  if (!p) return "";
+  const c = p==="P1"?"tag-p1":p==="P2"?"tag-p2":"tag-p3";
+  return `<span class="tag ${c}">${p}</span>`;
+}
+function dTag(d) {
+  if (!d) return "";
+  const dt  = new Date(d+"T12:00:00");
+  const now = new Date(TODAY+"T12:00:00");
+  const dif = Math.round((dt-now)/86400000);
+  let cls="tag tag-dt",lbl;
+  if      (dif<0)  { cls+=" due-over";  lbl=`${Math.abs(dif)}d late`; }
+  else if (dif===0){ cls+=" due-today"; lbl="Today"; }
+  else if (dif===1){ lbl="Tomorrow"; }
+  else {
+    const dow = dt.toLocaleDateString("en-US",{weekday:"short"});
+    const mf  = dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    lbl = `${dow} ${mf}`;
+  }
+  return `<span class="${cls}">📅 ${lbl}</span>`;
+}
+function bTag(bid,ctx) {
+  if (ctx!=="today") return "";
+  const c=bcolor(bid);
+  return `<span class="tag-bucket" style="background:${c}15;color:${c};border:1px solid ${c}30">${bid}</span>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════════════
+function render() { renderHdr(); renderToday(); renderBuckets(); renderGoals(); }
+
+function renderHdr() {
+  const now = new Date();
+  document.getElementById("hdrMeta").textContent =
+    now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}) +
+    "  ·  Last synced: " + (S.lastSync||"—");
+  const dom = now.getDate();
+  const dim = new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const pct = Math.round(dom/dim*100);
+  document.getElementById("progFill").style.width = pct+"%";
+  document.getElementById("progLbl").textContent  = `Jun ${dom}  ·  ${pct}%`;
+}
+
+function tHTML(t,ctx) {
+  const unpin = ctx==="today"
+    ? `<button class="ta" title="Remove from Today" onclick="unpinT('${t.id}')">↩</button>`
+    : `<button class="ta" title="Pin to Today"      onclick="pinT('${t.id}')">📌</button>`;
+  return `
+<div class="task-item" id="ti-${t.id}" draggable="true"
+  ondragstart="tDragStart(event,'${t.id}')" ondragend="tDragEnd()"
+  ondragover="tDragOver(event,'${t.id}')"   ondrop="tDropOn(event,'${t.id}')">
+  <span class="grip">⋮⋮</span>
+  <div class="chk ${t.done?"done":""}" onclick="toggleDone('${t.id}')"></div>
+  <div class="task-body">
+    <div class="task-txt ${t.done?"struck":""}" contenteditable="true" spellcheck="false"
+      onblur="saveTxt('${t.id}',this)" onkeydown="txtKey(event,'${t.id}',this)"
+    >${esc(t.text)}</div>
+    <div class="task-tags">
+      ${bTag(t.bucket,ctx)}${pTag(t.priority)}${dTag(t.dueDate)}
+    </div>
+  </div>
+  <div class="task-actions">
+    <button class="ta" onclick="cycleP('${t.id}')">${t.priority||"P·"}</button>
+    <button class="ta" onclick="openDP(event,'${t.id}')">📅</button>
+    ${unpin}
+    <button class="ta del" onclick="delTask('${t.id}')">✕</button>
+  </div>
+</div>`;
+}
+
+function renderToday() {
+  const tasks = todayTasks();
+  const el    = document.getElementById("todayList");
+  document.getElementById("todayCnt").textContent = tasks.length ? `${tasks.length} item${tasks.length!==1?"s":""}` : "";
+  el.innerHTML = tasks.length
+    ? tasks.map(t=>tHTML(t,"today")).join("")
+    : '<div class="today-empty">Nothing pinned for today — drag a task here or pin one from a bucket below ↓</div>';
+}
+
+function renderBuckets() {
+  document.getElementById("bucketsWrap").innerHTML = BUCKETS.map(b=>{
+    const tasks=bucketTasks(b.id), col=S.col?.[b.id]??false, bs=bsafe(b.id);
+    return `
+<div class="panel" style="margin-bottom:9px">
+  <div class="bucket-hdr" onclick="toggleCol('${b.id}')">
+    <div class="b-dot" style="background:${b.color}"></div>
+    <span class="b-name">${b.id}</span>
+    <span class="b-meta">${tasks.length||""}</span>
+    <span class="b-caret ${col?"":"open"}">▶</span>
+  </div>
+  <div class="bucket-body ${col?"collapsed":""}"
+    ondragover="dzOver(event)" ondragenter="dzEnter(event,'bucket:${b.id}')"
+    ondragleave="dzLeave(event)" ondrop="dzDrop(event,'bucket:${b.id}')">
+    <div class="bucket-list" id="bl-${bs}">
+      ${tasks.length?"":'<div class="b-empty">No tasks yet — add one or drag from Today</div>'}
+      ${tasks.map(t=>tHTML(t,b.id)).join("")}
+    </div>
+    <div class="add-row" id="ar-${bs}" onclick="showAdd('${b.id}')">
+      <span class="add-plus">+</span> Add task
+    </div>
+    <div class="add-form" id="af-${bs}">
+      <textarea class="add-in" id="ai-${bs}" rows="2" placeholder="Task description…" onkeydown="addKey(event,'${b.id}')"></textarea>
+      <div class="add-opts">
+        <select class="a-opt" id="ap-${bs}">
+          <option value="">Priority</option>
+          <option value="P1">P1 — Urgent</option>
+          <option value="P2">P2 — Soon</option>
+          <option value="P3">P3 — Later</option>
+        </select>
+        <input type="date" class="a-opt" id="ad-${bs}" style="padding:4px 6px">
+        <label class="a-opt" style="display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="checkbox" id="at-${bs}"> Pin to Today
+        </label>
+        <div class="add-btns">
+          <button class="btn-no" onclick="hideAdd('${b.id}')">Cancel</button>
+          <button class="btn-ok" onclick="commitAdd('${b.id}')">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
+  }).join("");
+}
+
+function renderGoalList(key,elId) {
+  const el=document.getElementById(elId); if(!el) return;
+  const items=getList(key);
+  el.innerHTML=items.map((txt,i)=>`
+<li>
+  <span class="li-txt" contenteditable="true" spellcheck="false"
+    onblur="saveListItem('${key}',${i},this)"
+    onkeydown="liKey(event,'${key}',${i},this)">${esc(txt)}</span>
+  <button class="li-del" onclick="delListItem('${key}',${i})">✕</button>
+</li>`).join("");
+}
+
+function renderGoals() {
+  renderGoalList("annualGoals","annualGoalsList");
+  renderGoalList("monthlyGoals","monthlyGoalsList");
+  renderGoalList("weeklyGoals","weeklyGoalsList");
+  renderGoalList("bucketListItems","bucketList");
+  ["goalA","goalB","goalC"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&S.goals[id]&&el.innerText.trim()!==S.goals[id]) el.innerText=S.goals[id];
+  });
+  const nl=document.getElementById("noList");
+  if(nl&&S.notes.noList) nl.innerText=S.notes.noList;
+}
+
+// ── Goal editing ──────────────────────────────────────────────
+function saveGoal(id,el) { S.goals[id]=el.innerText.trim(); save(); }
+function saveNote(id,el)  { S.notes[id]=el.innerText.trim(); save(); }
+function saveListItem(key,i,el) {
+  const arr=getList(key), v=el.innerText.trim();
+  if(v){arr[i]=v;setList(key,arr);}
+  else{arr.splice(i,1);setList(key,arr);renderGoals();}
+}
+function liKey(e,key,i,el) {
+  if(e.key==="Enter"){e.preventDefault();el.blur();}
+  if(e.key==="Escape"){el.innerText=getList(key)[i];el.blur();}
+}
+function addListItem(key) {
+  const arr=getList(key); arr.push("New item"); setList(key,arr); renderGoals();
+  const mapEl={annualGoals:"annualGoalsList",monthlyGoals:"monthlyGoalsList",weeklyGoals:"weeklyGoalsList",bucketListItems:"bucketList"};
+  requestAnimationFrame(()=>{
+    const el=document.getElementById(mapEl[key]);
+    if(!el) return;
+    const last=[...el.querySelectorAll(".li-txt")].pop();
+    if(last){last.focus();const r=document.createRange();r.selectNodeContents(last);window.getSelection().removeAllRanges();window.getSelection().addRange(r);}
+  });
+}
+function delListItem(key,i) { const arr=getList(key); arr.splice(i,1); setList(key,arr); renderGoals(); }
+
+// ══════════════════════════════════════════════════════════════
+//  TASK ACTIONS
+// ══════════════════════════════════════════════════════════════
+const T=id=>S.tasks.find(t=>t.id===id);
+function toggleDone(id){const t=T(id);if(!t)return;t.done=!t.done;save();render();}
+function saveTxt(id,el){const t=T(id);if(!t)return;const v=el.innerText.trim();if(v){t.text=v;save();}else el.innerText=t.text;}
+function txtKey(e,id,el){if(e.key==="Enter"){e.preventDefault();el.blur();}if(e.key==="Escape"){const t=T(id);if(t)el.innerText=t.text;el.blur();}}
+function pinT(id){const t=T(id);if(!t)return;t.isToday=true;t.todayOrder=todayTasks().length;save();render();}
+function unpinT(id){const t=T(id);if(!t)return;t.isToday=false;if(t.dueDate===TODAY)t.dueDate=null;save();render();}
+function delTask(id){if(!confirm("Delete this task?"))return;S.tasks=S.tasks.filter(t=>t.id!==id);save();render();}
+function cycleP(id){const t=T(id);if(!t)return;const c=[null,"P1","P2","P3"];t.priority=c[(c.indexOf(t.priority)+1)%c.length];save();render();}
+function toggleCol(bid){if(!S.col)S.col={};S.col[bid]=!S.col[bid];save();render();}
+
+// ══════════════════════════════════════════════════════════════
+//  DATE PICKER
+// ══════════════════════════════════════════════════════════════
+let _dpId=null;
+
+function openDP(e,id) {
+  e.stopPropagation();
+  _dpId=id;
+  const t=T(id);
+  const inp=document.getElementById("dp-input");
+  inp.value=t?.dueDate||TODAY;
+  dpUpdateDow();
+  const wrap=document.getElementById("datepicker-wrap");
+  const x=Math.min(e.clientX-140,window.innerWidth-290);
+  const y=Math.min(e.clientY+16,window.innerHeight-220);
+  wrap.style.left=Math.max(10,x)+"px";
+  wrap.style.top=y+"px";
+  wrap.classList.add("visible");
+  setTimeout(()=>inp.focus(),50);
+}
+function dpUpdateDow() {
+  const v=document.getElementById("dp-input").value;
+  const el=document.getElementById("dp-dow");
+  if(!v){el.textContent="";return;}
+  const d=new Date(v+"T12:00:00");
+  const now=new Date(TODAY+"T12:00:00");
+  const dif=Math.round((d-now)/86400000);
+  const dow=d.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  let rel="";
+  if(dif===0)rel=" — Today";
+  else if(dif===1)rel=" — Tomorrow";
+  else if(dif===-1)rel=" — Yesterday";
+  else if(dif<0)rel=` — ${Math.abs(dif)} days ago`;
+  else rel=` — in ${dif} days`;
+  el.textContent=dow+rel;
+}
+function dpConfirm(){const v=document.getElementById("dp-input").value;const t=T(_dpId);if(t&&v){t.dueDate=v;save();render();}dpClose();}
+function dpClear(){const t=T(_dpId);if(t){t.dueDate=null;save();render();}dpClose();}
+function dpCancel(){dpClose();}
+function dpClose(){document.getElementById("datepicker-wrap").classList.remove("visible");_dpId=null;}
+document.addEventListener("click",e=>{const w=document.getElementById("datepicker-wrap");if(w.classList.contains("visible")&&!w.contains(e.target))dpClose();});
+
+// ══════════════════════════════════════════════════════════════
+//  ADD TASK FORM
+// ══════════════════════════════════════════════════════════════
+function showAdd(bid){const s=bsafe(bid);document.getElementById("ar-"+s).style.display="none";document.getElementById("af-"+s).style.display="block";document.getElementById("ai-"+s).focus();}
+function hideAdd(bid){const s=bsafe(bid);document.getElementById("ar-"+s).style.display="";document.getElementById("af-"+s).style.display="none";["ai","ap","ad"].forEach(k=>{document.getElementById(k+"-"+s).value="";});document.getElementById("at-"+s).checked=false;}
+function addKey(e,bid){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();commitAdd(bid);}if(e.key==="Escape")hideAdd(bid);}
+function commitAdd(bid){
+  const s=bsafe(bid);
+  const text=document.getElementById("ai-"+s).value.trim();if(!text)return;
+  const priority=document.getElementById("ap-"+s).value||null;
+  const dueDate=document.getElementById("ad-"+s).value||null;
+  const pinned=document.getElementById("at-"+s).checked;
+  S.tasks.push({id:uid(),text,bucket:bid,priority,dueDate,isToday:pinned||dueDate===TODAY,todayOrder:pinned?todayTasks().length:null,done:false});
+  save();hideAdd(bid);render();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DRAG & DROP
+// ══════════════════════════════════════════════════════════════
+let _did=null;
+function tDragStart(e,id){_did=id;e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",id);setTimeout(()=>document.getElementById("ti-"+id)?.classList.add("dragging"),0);}
+function tDragEnd(){document.querySelectorAll(".dragging").forEach(el=>el.classList.remove("dragging"));document.querySelectorAll(".ins-before,.ins-after").forEach(el=>el.classList.remove("ins-before","ins-after"));_did=null;}
+function tDragOver(e,tid){if(!_did||tid===_did)return;e.preventDefault();e.stopPropagation();const el=document.getElementById("ti-"+tid);if(!el)return;const mid=el.getBoundingClientRect().top+el.offsetHeight/2;document.querySelectorAll(".ins-before,.ins-after").forEach(x=>x.classList.remove("ins-before","ins-after"));el.classList.add(e.clientY<mid?"ins-before":"ins-after");}
+function tDropOn(e,tid){if(!_did||tid===_did)return;e.preventDefault();e.stopPropagation();const dragT=T(_did),targetT=T(tid);if(!dragT||!targetT)return;const after=document.getElementById("ti-"+tid)?.classList.contains("ins-after");if(taskIsToday(targetT)){dragT.isToday=true;const list=todayTasks().filter(t=>t.id!==_did);const idx=list.findIndex(t=>t.id===tid);list.splice(after?idx+1:idx,0,dragT);list.forEach((t,i)=>{t.todayOrder=i;});}else{dragT.bucket=targetT.bucket;dragT.isToday=false;if(dragT.dueDate===TODAY)dragT.dueDate=null;}save();render();}
+function dzOver(e){e.preventDefault();}
+function dzEnter(e,zone){e.preventDefault();e.currentTarget.classList.add("dz-on");}
+function dzLeave(e){e.currentTarget.classList.remove("dz-on");}
+function dzDrop(e,zone){e.preventDefault();e.currentTarget.classList.remove("dz-on");if(!_did)return;const t=T(_did);if(!t)return;if(zone==="today"){if(!taskIsToday(t)){t.isToday=true;t.todayOrder=todayTasks().length;}}else if(zone.startsWith("bucket:")){const bid=zone.slice(7);t.bucket=bid;t.isToday=false;if(t.dueDate===TODAY)t.dueDate=null;}save();render();}
+
+// ══════════════════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
