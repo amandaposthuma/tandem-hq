@@ -68,6 +68,35 @@
     .quote-nav{background:none;border:none;cursor:pointer;color:#d0b0c0;font-size:14px;padding:3px 6px;border-radius:4px;}
     .quote-nav:hover{color:var(--rose);background:var(--rose-lt);}
 
+    /* ── INBOX ── */
+    .inbox-wrap{padding:20px 24px 60px;flex:1;overflow-y:auto;}
+    .inbox-wrap::-webkit-scrollbar{width:5px;}
+    .inbox-wrap::-webkit-scrollbar-thumb{background:rgba(190,24,93,0.12);border-radius:3px;}
+    .inbox-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:240px;color:var(--text-muted);font-size:13px;gap:8px;}
+    .inbox-empty-icon{font-size:36px;opacity:.35;}
+    .inbox-card{background:rgba(255,255,255,0.88);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 2px 10px rgba(0,0,0,0.04);transition:box-shadow .12s;}
+    .inbox-card:hover{box-shadow:0 4px 18px rgba(0,0,0,0.08);}
+    .inbox-accent{width:4px;border-radius:4px;flex-shrink:0;align-self:stretch;min-height:28px;}
+    .inbox-body{flex:1;min-width:0;}
+    .inbox-text{font-size:13.5px;color:var(--text);line-height:1.45;margin-bottom:6px;}
+    .inbox-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .inbox-bucket{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,0.05);color:var(--text-muted);}
+    .inbox-pri{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
+    .inbox-pri.P1{background:#fef2f2;color:#dc2626;}
+    .inbox-pri.P2{background:#fffbeb;color:#b45309;}
+    .inbox-due{font-size:10px;color:var(--text-muted);}
+    .inbox-actions{display:flex;gap:6px;flex-shrink:0;padding-top:2px;}
+    .inbox-accept{background:var(--sage);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;}
+    .inbox-accept:hover{opacity:.88;}
+    .inbox-dismiss{background:rgba(0,0,0,0.05);color:var(--text-muted);border:none;border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;transition:all .12s;}
+    .inbox-dismiss:hover{background:rgba(0,0,0,0.10);color:var(--text);}
+    .inbox-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .inbox-hdr-txt{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:400;font-style:italic;color:var(--text-mid);}
+    .inbox-hdr-sub{font-size:11px;color:var(--text-muted);}
+    .inbox-accept-all{background:none;border:1.5px solid var(--sage);color:var(--sage);border-radius:7px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .inbox-accept-all:hover{background:var(--sage);color:#fff;}
+    .inbox-badge{margin-left:auto;background:var(--rose);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;}
+
     /* ── VISION BOARD FULL VIEW ── */
     .vb-full-wrap{padding:20px 24px 40px;}
     .vb-full-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
@@ -360,6 +389,10 @@
       <div class="sb-item" id="nav-vboard" onclick="switchView('vboard')">
         <span>🌸</span><span>Vision Board</span>
       </div>
+      <div class="sb-item" id="nav-inbox" onclick="switchView('inbox')">
+        <span>📥</span><span>Inbox</span>
+        <span class="inbox-badge" id="inbox-badge" style="display:none"></span>
+      </div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-section-lbl">Clients</div>
@@ -407,6 +440,17 @@
         </div>
       </div>
       <div id="taskContent"></div>
+    </div>
+    <!-- INBOX VIEW -->
+    <div class="inbox-wrap" id="inboxWrap" style="display:none">
+      <div class="inbox-hdr">
+        <div>
+          <div class="inbox-hdr-txt">Proposed Tasks</div>
+          <div class="inbox-hdr-sub">Review items Claude pulled from Notion · Accept to add, Dismiss to skip</div>
+        </div>
+        <button class="inbox-accept-all" onclick="acceptAllProposed()">Accept All</button>
+      </div>
+      <div id="inboxContent"></div>
     </div>
   </div>
 
@@ -485,6 +529,13 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════
+// CLAUDE_PROPOSALS_START — Claude writes proposed tasks here daily
+// ══════════════════════════════════════════════════════════════
+const CLAUDE_PROPOSALS = [
+  // Example format (Claude will populate these daily):
+  // { id:"p1", text:"HKH: Review June Sephora sales report", bucket:"HKH", priority:"P2", dueDate:"2026-06-18" },
+];
+// CLAUDE_PROPOSALS_END
 // ══════════════════════════════════════════════════════════════
 // CLAUDE_DATA_START — synced Jun 17, 2026 (complete) · Notion + Amanda
 // ══════════════════════════════════════════════════════════════
@@ -717,22 +768,99 @@ function switchView(v){
   if(v==="today")document.getElementById("nav-today").classList.add("active");
   else if(v==="all")document.getElementById("nav-all").classList.add("active");
   else if(v==="vboard")document.getElementById("nav-vboard").classList.add("active");
+  else if(v==="inbox")document.getElementById("nav-inbox").classList.add("active");
   else{const it=document.querySelector(`.sb-item[data-bid="${CSS.escape(v)}"]`);if(it)it.classList.add("active");}
   const titleEl=document.getElementById("mainTitle");
   const isVboard=v==="vboard";
-  document.getElementById("mainToolbar").style.display=isVboard?"none":"";
-  document.querySelector(".add-btn").style.display=isVboard?"none":"";
+  const isInbox=v==="inbox";
+  document.getElementById("mainToolbar").style.display=(isVboard||isInbox)?"none":"";
+  document.querySelector(".add-btn").style.display=(isVboard||isInbox)?"none":"";
+  document.getElementById("taskScroll").style.display=isInbox?"none":"";
+  document.getElementById("inboxWrap").style.display=isInbox?"flex":"none";
   if(v==="today")titleEl.innerHTML='Today<span class="main-title-sub" id="mainSub"></span>';
   else if(v==="all")titleEl.innerHTML='All Tasks<span class="main-title-sub" id="mainSub"></span>';
   else if(v==="vboard")titleEl.innerHTML='Vision Board<span class="main-title-sub" id="mainSub"></span>';
+  else if(v==="inbox")titleEl.innerHTML='Inbox<span class="main-title-sub" id="mainSub"></span>';
   else{const c=bcolor(v);titleEl.innerHTML=`<span style="color:${c}">${esc(blabel(v))}</span><span class="main-title-sub" id="mainSub"></span>`;}
   document.getElementById("searchIn").value="";SEARCH_Q="";
-  renderTasks();renderSidebarCounts();updateMainSub();
+  if(isInbox)renderInbox();
+  else{renderTasks();renderVB();}
+  renderSidebarCounts();updateMainSub();
+}
+
+// ── INBOX ──────────────────────────────────────────────────────
+function getProposed(){
+  // Start with CLAUDE_PROPOSALS, filter out any already accepted (in S.tasks by id) or dismissed
+  const dismissed=JSON.parse(localStorage.getItem("tandem_dismissed_v4")||"[]");
+  const acceptedIds=new Set(S.tasks.map(t=>t.id));
+  return (CLAUDE_PROPOSALS||[]).filter(p=>!acceptedIds.has(p.id)&&!dismissed.includes(p.id));
+}
+function renderInbox(){
+  const proposed=getProposed();
+  const el=document.getElementById("inboxContent");
+  updateInboxBadge();
+  if(!proposed.length){
+    el.innerHTML=`<div class="inbox-empty"><div class="inbox-empty-icon">📭</div><div>Nothing to review — you're all caught up</div><div style="font-size:11px;margin-top:4px;color:var(--text-muted)">Claude will propose new tasks after the next daily sync</div></div>`;
+    return;
+  }
+  el.innerHTML=proposed.map(p=>{
+    const c=bcolor(p.bucket||"Personal");
+    const priClass=p.priority||"";
+    const priHTML=p.priority?`<span class="inbox-pri ${priClass}">${p.priority}</span>`:"";
+    const dueHTML=p.dueDate?`<span class="inbox-due">📅 ${p.dueDate}</span>`:"";
+    return`<div class="inbox-card" id="ip-${p.id}">
+      <div class="inbox-accent" style="background:${c}"></div>
+      <div class="inbox-body">
+        <div class="inbox-text">${esc(p.text)}</div>
+        <div class="inbox-meta">
+          <span class="inbox-bucket" style="color:${c}">${esc(p.bucket||"")}</span>
+          ${priHTML}${dueHTML}
+        </div>
+      </div>
+      <div class="inbox-actions">
+        <button class="inbox-accept" onclick="acceptProposed('${p.id}')">✓ Add</button>
+        <button class="inbox-dismiss" onclick="dismissProposed('${p.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function acceptProposed(id){
+  const proposed=getProposed();
+  const p=proposed.find(x=>x.id===id);if(!p)return;
+  const task={id:p.id,text:p.text,bucket:p.bucket||"Personal",priority:p.priority||null,isToday:false,todayOrder:null,dueDate:p.dueDate||null,done:false};
+  S.tasks.push(task);save();
+  const card=document.getElementById("ip-"+id);
+  if(card){card.style.opacity="0";card.style.transform="translateX(20px)";card.style.transition="all .2s";setTimeout(()=>{renderInbox();},220);}
+  else renderInbox();
+  showToast("Added to your tasks ✓");
+}
+function dismissProposed(id){
+  const dismissed=JSON.parse(localStorage.getItem("tandem_dismissed_v4")||"[]");
+  dismissed.push(id);
+  localStorage.setItem("tandem_dismissed_v4",JSON.stringify(dismissed));
+  const card=document.getElementById("ip-"+id);
+  if(card){card.style.opacity="0";card.style.transition="opacity .15s";setTimeout(()=>{renderInbox();},160);}
+  else renderInbox();
+}
+function acceptAllProposed(){
+  const proposed=getProposed();
+  proposed.forEach(p=>{
+    S.tasks.push({id:p.id,text:p.text,bucket:p.bucket||"Personal",priority:p.priority||null,isToday:false,todayOrder:null,dueDate:p.dueDate||null,done:false});
+  });
+  save();renderInbox();
+  showToast(`Added ${proposed.length} task${proposed.length!==1?"s":""} ✓`);
+}
+function updateInboxBadge(){
+  const n=getProposed().length;
+  const badge=document.getElementById("inbox-badge");
+  if(!badge)return;
+  if(n>0){badge.textContent=n;badge.style.display="";}
+  else badge.style.display="none";
 }
 function updateMainSub(){const sub=document.getElementById("mainSub");if(!sub)return;if(VIEW==="today"){const n=S.tasks.filter(t=>!t.done&&taskIsToday(t)).length;sub.textContent=" · "+n+" task"+(n!==1?"s":"");}else sub.textContent="";}
 
 // RENDER
-function render(){renderHeader();renderSidebar();renderTasks();renderGoals();renderVB();applyTheme();}
+function render(){renderHeader();renderSidebar();renderTasks();renderGoals();renderVB();applyTheme();updateInboxBadge();}
 
 function renderHeader(){
   const now=new Date();
