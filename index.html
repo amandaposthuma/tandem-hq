@@ -66,6 +66,7 @@
     .main-header{display:flex;align-items:center;gap:12px;padding:12px 20px 10px;flex-shrink:0;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.50);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
     .main-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:400;font-style:italic;color:var(--text);flex:1;}
     .main-title-sub{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);font-weight:400;font-style:normal;margin-left:8px;}
+    .hdr-clock{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);font-weight:400;letter-spacing:.03em;white-space:nowrap;}
     .add-btn{background:var(--rose);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .12s;box-shadow:0 2px 8px rgba(190,24,93,0.22);}
     .add-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 14px rgba(190,24,93,0.28);}
     .toolbar{display:flex;align-items:center;gap:7px;padding:8px 20px;flex-shrink:0;background:rgba(255,255,255,0.30);border-bottom:1px solid rgba(0,0,0,0.04);}
@@ -354,6 +355,7 @@
     </div>
     <div class="main-header">
       <div class="main-title" id="mainTitle">Today<span class="main-title-sub" id="mainSub"></span></div>
+      <div class="hdr-clock" id="hdrClock"></div>
       <button class="add-btn" onclick="showAddForm()">+ New Task</button>
     </div>
     <div class="toolbar">
@@ -863,7 +865,7 @@ function addListItem(key){
   const arr=[...getList(key)];arr.push("New item");setList(key,arr);
   const idMap={annualGoals:"annualGoalsList",monthlyGoals:"monthlyGoalsList",weeklyGoals:"weeklyGoalsList",habits:"habitsList",bucketListItems:"bucketList"};
   renderList(key,idMap[key]);
-  const ul=document.getElementById(idMap[key]);if(ul){const items=ul.querySelectorAll(".li-txt");if(items.length){const last=items[items.length-1];last.focus();document.execCommand("selectAll");}}
+  const ul=document.getElementById(idMap[key]);if(ul){const items=ul.querySelectorAll(".li-txt");if(items.length){const last=items[items.length-1];last.focus();const sel=window.getSelection();const range=document.createRange();range.selectNodeContents(last);sel.removeAllRanges();sel.addRange(range);}}
 }
 function saveGoal(key,el){if(!S.goals)S.goals={};S.goals[key]=el.textContent.trim();save();}
 function saveNote(key,el){if(!S.notes)S.notes={};S.notes[key]=el.textContent;save();}
@@ -879,10 +881,16 @@ function vbAddUrl(){const raw=document.getElementById("vbUrlIn").value.trim();if
 function vbDelete(idx){S.vboard.splice(idx,1);save();renderVB();}
 document.getElementById("vbGrid").addEventListener("dragover",e=>e.preventDefault());
 document.getElementById("vbGrid").addEventListener("drop",e=>{e.preventDefault();for(const f of[...e.dataTransfer.files].filter(f=>f.type.startsWith("image/"))){const r=new FileReader();r.onload=ev=>{S.vboard.push({src:ev.target.result,label:""});save();renderVB();};r.readAsDataURL(f);}});
+// Prevent browser from navigating away when a file is dropped outside the grid
+document.addEventListener("dragover",e=>{if(e.dataTransfer?.types?.includes("Files"))e.preventDefault();});
+document.addEventListener("drop",e=>{if(e.dataTransfer?.types?.includes("Files"))e.preventDefault();});
 document.addEventListener("paste",e=>{
-  if(document.getElementById("tpNotes")===document.activeElement)return;
+  // Only skip if user is actively typing in the task notes panel
+  const ae=document.activeElement;
+  if(ae&&ae.id==="tpNotes")return;
   const img=[...e.clipboardData.items].find(i=>i.type.startsWith("image/"));if(!img)return;
-  const f=img.getAsFile();const r=new FileReader();r.onload=ev=>{S.vboard.push({src:ev.target.result,label:""});save();renderVB();};r.readAsDataURL(f);
+  e.preventDefault();
+  const f=img.getAsFile();const r=new FileReader();r.onload=ev=>{S.vboard.push({src:ev.target.result,label:""});save();renderVB();showToast("Image added to vision board ✨");};r.readAsDataURL(f);
 });
 
 // QUOTES
@@ -937,6 +945,8 @@ document.addEventListener("click",e=>{
 
 render();
 initQuote();
+function tickClock(){const now=new Date();const time=now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true});const day=now.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});document.getElementById("hdrClock").textContent=day+" · "+time;}
+tickClock();setInterval(tickClock,1000);
 </script>
 </body>
 </html>
