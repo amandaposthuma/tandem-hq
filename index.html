@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Amanda's HQ</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#be185d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="HQ">
+  <link rel="apple-touch-icon" href="icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -328,6 +334,58 @@
     /* ── UNDO TOAST ── */
     #undo-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a0a12;color:#fff;padding:9px 20px;border-radius:10px;font-size:13px;z-index:3000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.2);}
     #undo-toast.show{opacity:1;}
+
+    /* ── MOBILE ── */
+    @media(max-width:768px){
+      .app{flex-direction:column;}
+      .sidebar{display:none;position:fixed;z-index:500;left:0;top:0;bottom:0;width:82vw;max-width:300px;height:100dvh;overflow-y:auto;box-shadow:4px 0 32px rgba(0,0,0,0.18);transition:transform .22s ease;}
+      .sidebar.mob-open{display:flex;}
+      #mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:490;}
+      #mob-overlay.mob-open{display:block;}
+      .right-rail{display:none;}
+      .main{width:100%;min-width:0;height:100dvh;padding-bottom:calc(68px + env(safe-area-inset-bottom));}
+      .task-scroll{height:calc(100dvh - 130px);padding-bottom:80px;}
+      .quote-strip{padding:10px 14px 6px;gap:6px;}
+      .quote-txt{font-size:13px;}
+      .main-header{padding:8px 14px 6px;}
+      .main-title{font-size:20px;}
+      .add-btn{display:none;}
+      .toolbar{padding:4px 10px 8px;gap:6px;flex-wrap:nowrap;overflow-x:auto;}
+      .search-in{font-size:14px;}
+      .task-card{padding:11px 8px;}
+      .chk{width:22px;height:22px;flex-shrink:0;}
+      .card-txt{font-size:14px;line-height:1.45;}
+      .card-tags{gap:4px;flex-wrap:wrap;}
+      .card-actions{gap:4px;}
+      .ta{width:30px;height:30px;font-size:14px;}
+      /* bottom nav */
+      #mob-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:400;background:rgba(255,248,252,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom);}
+      .mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0 4px;gap:2px;border:none;background:none;cursor:pointer;font-size:9.5px;font-family:inherit;color:#aaa;letter-spacing:.03em;position:relative;}
+      .mob-tab .mob-icon{font-size:19px;line-height:1;}
+      .mob-tab.active{color:var(--rose);}
+      .mob-tab .mob-badge{position:absolute;top:5px;right:calc(50% - 16px);background:var(--rose);color:#fff;border-radius:999px;font-size:9px;padding:1px 5px;font-weight:700;}
+      /* FAB */
+      #mob-fab{display:flex;position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));right:18px;z-index:450;width:54px;height:54px;border-radius:27px;background:var(--rose);color:#fff;border:none;font-size:28px;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(190,24,93,0.38);cursor:pointer;}
+      /* quick-add sheet */
+      #mob-quick-add{display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;background:#fff;border-radius:18px 18px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -8px 40px rgba(0,0,0,0.15);}
+      #mob-quick-add.open{display:block;}
+      .mob-qa-drag{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 14px;}
+      .mob-qa-title{font-size:13px;font-weight:600;color:var(--text-mid);margin-bottom:10px;letter-spacing:.04em;text-transform:uppercase;}
+      .mob-qa-in{width:100%;font-size:16px;font-family:inherit;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;outline:none;background:#fafafa;resize:none;line-height:1.45;}
+      .mob-qa-in:focus{border-color:var(--rose);background:#fff;}
+      .mob-qa-row{display:flex;gap:8px;margin-top:10px;align-items:center;}
+      .mob-qa-sel{flex:1;font-size:14px;font-family:inherit;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;background:#fafafa;color:var(--text);}
+      .mob-qa-ok{background:var(--rose);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;}
+      .mob-qa-cancel{background:none;border:none;color:#aaa;font-size:14px;font-family:inherit;cursor:pointer;padding:10px 8px;}
+      /* task panel full-screen on mobile */
+      .task-panel{width:100vw;max-width:100vw;}
+    }
+    @media(min-width:769px){
+      #mob-nav{display:none!important;}
+      #mob-fab{display:none!important;}
+      #mob-quick-add{display:none!important;}
+      #mob-overlay{display:none!important;}
+    }
   </style>
 </head>
 <body>
@@ -569,8 +627,7 @@ const CLAUDE_SYNC = {
     { id:"t1",  text:"HKH: Tatis follow-up — schedule call Thu or Fri",                                    bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:0,  dueDate:"2026-06-17", done:false },
     { id:"t4",  text:"HKH: Update proposal generator — 4 tiers x 2 niches",                               bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:2,  dueDate:"2026-06-17", done:false },
     { id:"t5",  text:"HKH: Proposals set to invite-only (not whole org)",                                  bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:3,  dueDate:"2026-06-17", done:false },
-    { id:"t59", text:"HKH: Create Tephy design system in Claude",                                          bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:4,  dueDate:"2026-06-17", done:false },
-    { id:"t16", text:"HKH: Set up Claude account (pin Tephy) & next steps master",                        bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:5,  dueDate:"2026-06-17", done:false },
+    { id:"t16", text:"HKH: Stephanie — set up Claude account + pin Tephy + create design system + social media & biz dev next steps", bucket:"HKH", priority:"P1", isToday:true, todayOrder:4, dueDate:"2026-06-17", done:false },
     { id:"t61", text:"OT Part 1: Load data room with Lais files",                                        bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:6,  dueDate:"2026-06-17", done:false },
     { id:"t6",  text:"OT Part 1 (Aitana/Laiz): Design + set up reporting workflow",                          bucket:"HKH",         priority:"P1", isToday:true,  todayOrder:7,  dueDate:"2026-06-17", done:false },
     { id:"t97", text:"OT Part 2 (Alice/Ana): Design + set up reporting workflow",                           bucket:"HKH",         priority:"P1", isToday:true,  todayOrder:8,  dueDate:"2026-06-17", done:false },
@@ -588,7 +645,6 @@ const CLAUDE_SYNC = {
 
     // ── TOMORROW Jun 18 ───────────────────────────────────────
     { id:"t64", text:"HKH: Make proposal skill better — fix formatting + web search for logos",            bucket:"HKH",          priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
-    { id:"t3",  text:"HKH: Stephanie — social media + business development",                               bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"t65", text:"FGC: Create Claude skills for social media — research, write, format rules",         bucket:"FGC",          priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"t66", text:"Strides: Prep + plan follow-up with Neil — 3dSole conversation",                    bucket:"Strides",      priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"n7",  text:"Tandem: Watch Mariah Brunner VS Code agentic workflow videos — set up screen-reading agent", bucket:"Tandem", priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
@@ -607,7 +663,7 @@ const CLAUDE_SYNC = {
     // ── MONDAY Jun 22 ─────────────────────────────────────────
     { id:"t37", text:"VH: Send detailed proposal (retainer vs one-off)",                                  bucket:"Vital Hackers", priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
 
-    { id:"t17", text:"HKH: KPI reporting",                                                                bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
+    { id:"t17", text:"HKH: KPI reporting — translate KPIs to English, upload to Claude",                  bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
     { id:"t72", text:"Tandem: Finance setup — itemized receipts (Ubers x Alan), invoice automation + recurring 25th", bucket:"Tandem", priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
     { id:"n13", text:"Personal: Call DUA",                                                                bucket:"Personal",     priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
 
@@ -644,16 +700,14 @@ const CLAUDE_SYNC = {
     { id:"t14", text:"HKH: Teams account switch to 5 seats",                                             bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t19", text:"HKH: Workflow instructions for Alice — weekly Sephora + monthly Lafayette",        bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t20", text:"HKH: Investigate Granola + Drive + Claude integrations",                           bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"t21", text:"HKH: Translate KPIs/objectives to English + upload to Claude",                     bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t24", text:"OT: Map billing flow — spreadsheet+AI vs Qonto",                                   bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-30", done:false },
     { id:"t96", text:"OT Part 3 (Tatiana): Integrate with Qonto",                                             bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-30", done:false },
 
     // ── FGC BACKLOG ───────────────────────────────────────────
     { id:"t26", text:"FGC: Site — review designer drafts, edit About Us, finalize + launch",             bucket:"FGC",          priority:"P1", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t27", text:"FGC: Website — team page: update Ali, bios, team photos, carta apresentacao",     bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-07-01", done:false },
-    { id:"t29", text:"FGC: Schedule call to scope client reporting system",                              bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t30", text:"FGC: Developer brief — Coastal Blue (Sherwin Williams ref) + G animation brief",  bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"t31", text:"FGC: Review full stack — Clio, Canopy, Athennian, M365, QuickBooks",              bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t31", text:"FGC: Review full stack + scope client reporting — Clio, Canopy, Athennian, M365, QuickBooks", bucket:"FGC", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t32", text:"FGC: Map Fabi & Claudia repetitive processes — build Claude skills",              bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t81", text:"FGC: Request Fabi's Smart US Investment info",                                     bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t82", text:"FGC: Send pre-approval of 3 newsletters",                                         bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
@@ -674,8 +728,7 @@ const CLAUDE_SYNC = {
 
     // ── STRIDES BACKLOG ───────────────────────────────────────
     { id:"t44", text:"Strides: Research competitors + market positioning",                               bucket:"Strides",      priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"t45", text:"Strides: Investigate Voxel Care Brazil expansion + economics",                     bucket:"Strides",      priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"t46", text:"Strides: Analyze mall retail economics for Brazil market",                         bucket:"Strides",      priority:"P3", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t45", text:"Strides: Brazil market research — Voxel Care expansion economics + mall retail analysis", bucket:"Strides", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t47", text:"Strides: Book demos — Vertex, Voxel Care, Stride Soles",                          bucket:"Strides",      priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
 
     // ── TANDEM BACKLOG ────────────────────────────────────────
@@ -708,7 +761,7 @@ const BUCKETS = [
 
 const DEFAULTS = {
   annualGoals:    ["Launch Tandem as a real business with paying clients","Get physically strong — run 5K, lift consistently","Be intentional with relationships","Create financial stability and momentum"],
-  monthlyGoals:   ["Add one new client to Tandem","Figure out 3DSole with Neil — real opportunity?","HKH fully onboarded, Phase 1 delivered"],
+  monthlyGoals:   ["Add one new client to Tandem","Figure out Strides with Neil — real opportunity?","HKH fully onboarded, Phase 1 delivered"],
   weeklyGoals:    [],
   habits:         ["Sunrise wake-up (Mon–Fri)","In bed by 8:30pm · lights out 9pm","Lift session","10 min core","Text or call 1 friend","Clear WhatsApps before bed"],
   bucketListItems:["Long run on the Key Biscayne bridge","Explore a new restaurant with parents"]
@@ -858,10 +911,10 @@ function acceptAllProposed(){
 }
 function updateInboxBadge(){
   const n=getProposed().length;
-  const badge=document.getElementById("inbox-badge");
-  if(!badge)return;
-  if(n>0){badge.textContent=n;badge.style.display="";}
-  else badge.style.display="none";
+  ["inbox-badge","mob-inbox-badge"].forEach(id=>{
+    const badge=document.getElementById(id);if(!badge)return;
+    if(n>0){badge.textContent=n;badge.style.display="";}else badge.style.display="none";
+  });
 }
 function updateMainSub(){const sub=document.getElementById("mainSub");if(!sub)return;if(VIEW==="today"){const n=S.tasks.filter(t=>!t.done&&taskIsToday(t)).length;sub.textContent=" · "+n+" task"+(n!==1?"s":"");}else sub.textContent="";}
 
@@ -1236,6 +1289,70 @@ render();
 initQuote();
 function tickClock(){const now=new Date();const time=now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true});const day=now.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});document.getElementById("hdrClock").textContent=day+" · "+time;}
 tickClock();setInterval(tickClock,1000);
+
+// ── MOBILE ───────────────────────────────────────────────────────────────────
+function isMobile(){return window.innerWidth<=768;}
+function mobOpenSidebar(){document.querySelector(".sidebar").classList.add("mob-open");document.getElementById("mob-overlay").classList.add("mob-open");}
+function mobCloseSidebar(){document.querySelector(".sidebar").classList.remove("mob-open");document.getElementById("mob-overlay").classList.remove("mob-open");}
+function mobSwitchView(v){mobCloseSidebar();switchView(v);mobUpdateTabs(v);}
+function mobUpdateTabs(v){
+  document.querySelectorAll(".mob-tab").forEach(el=>el.classList.remove("active"));
+  const map={today:"mob-tab-today",all:"mob-tab-all",inbox:"mob-tab-inbox"};
+  if(map[v])document.getElementById(map[v]).classList.add("active");
+}
+function mobOpenQA(){document.getElementById("mob-quick-add").classList.add("open");document.getElementById("mob-qa-in").focus();}
+function mobCloseQA(){document.getElementById("mob-quick-add").classList.remove("open");}
+function mobSubmitQA(){
+  const text=document.getElementById("mob-qa-in").value.trim();if(!text)return;
+  const bucket=document.getElementById("mob-qa-bucket").value;
+  const t={id:uid(),text,bucket,priority:"P1",isToday:true,todayOrder:Date.now(),dueDate:TODAY,done:false,createdAt:Date.now()};
+  S.tasks.unshift(t);save();renderTasks();renderSidebarCounts();
+  document.getElementById("mob-qa-in").value="";mobCloseQA();showToast("Task added");
+}
+// Populate bucket select in quick-add sheet
+function mobInitQA(){
+  const sel=document.getElementById("mob-qa-bucket");
+  sel.innerHTML=BUCKETS.map(b=>`<option value="${b.id}">${b.label}</option>`).join("");
+}
+// Register service worker
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+// Init mobile on load
+window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today");});
 </script>
+
+<!-- MOBILE OVERLAY -->
+<div id="mob-overlay" onclick="mobCloseSidebar()"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mob-nav">
+  <button class="mob-tab active" id="mob-tab-today" onclick="mobSwitchView('today')">
+    <span class="mob-icon">✦</span>Today
+  </button>
+  <button class="mob-tab" id="mob-tab-all" onclick="mobSwitchView('all')">
+    <span class="mob-icon">◻</span>All
+  </button>
+  <button class="mob-tab" id="mob-tab-inbox" onclick="mobSwitchView('inbox')">
+    <span class="mob-icon">📥</span>Inbox
+    <span class="mob-badge" id="mob-inbox-badge" style="display:none"></span>
+  </button>
+  <button class="mob-tab" id="mob-tab-menu" onclick="mobOpenSidebar()">
+    <span class="mob-icon">☰</span>Menu
+  </button>
+</nav>
+
+<!-- MOBILE FAB -->
+<button id="mob-fab" onclick="mobOpenQA()">+</button>
+
+<!-- MOBILE QUICK-ADD SHEET -->
+<div id="mob-quick-add">
+  <div class="mob-qa-drag"></div>
+  <div class="mob-qa-title">Quick Add</div>
+  <textarea class="mob-qa-in" id="mob-qa-in" rows="3" placeholder="What needs to get done?"></textarea>
+  <div class="mob-qa-row">
+    <select class="mob-qa-sel" id="mob-qa-bucket"></select>
+    <button class="mob-qa-cancel" onclick="mobCloseQA()">Cancel</button>
+    <button class="mob-qa-ok" onclick="mobSubmitQA()">Add</button>
+  </div>
+</div>
 </body>
 </html>
