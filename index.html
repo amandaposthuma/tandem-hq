@@ -554,9 +554,9 @@
       <div class="inbox-hdr">
         <div>
           <div class="inbox-hdr-txt">Proposed Tasks</div>
-          <div class="inbox-hdr-sub">Review items Claude pulled from Notion · Accept to add, Dismiss to skip</div>
+          <div class="inbox-hdr-sub">Tasks Claude proposed · Accept to add, Dismiss to skip</div>
         </div>
-        <button class="inbox-accept-all" onclick="acceptAllProposed()">Accept All</button>
+        <button class="inbox-accept-all" id="inboxAcceptAll" onclick="acceptAllProposed()">Accept All</button>
       </div>
       <div id="inboxContent"></div>
     </div>
@@ -887,8 +887,10 @@ function renderInbox(){
   const proposed=getProposed();
   const el=document.getElementById("inboxContent");
   updateInboxBadge();
+  const btn=document.getElementById("inboxAcceptAll");
+  if(btn)btn.style.display=proposed.length?"":"none";
   if(!proposed.length){
-    el.innerHTML=`<div class="inbox-empty"><div class="inbox-empty-icon">📭</div><div>Nothing to review — you're all caught up</div><div style="font-size:11px;margin-top:4px;color:var(--text-muted)">Claude will propose new tasks after the next daily sync</div></div>`;
+    el.innerHTML=`<div class="inbox-empty"><div class="inbox-empty-icon">📭</div><div>Nothing to review — you're all caught up</div><div style="font-size:11px;margin-top:4px;color:var(--text-muted)">Claude will propose new tasks after the next sync</div></div>`;
     return;
   }
   el.innerHTML=proposed.map(p=>{
