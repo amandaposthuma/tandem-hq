@@ -303,6 +303,9 @@
     .tp-sub-text.done{text-decoration:line-through;color:#bbb;}
     .tp-sub-del{background:none;border:none;color:#ddd;font-size:13px;cursor:pointer;padding:0 2px;flex-shrink:0;}
     .tp-sub-del:hover{color:#ef4444;}
+    .tp-sub-move{background:none;border:none;color:#d0d0d0;font-size:10px;cursor:pointer;padding:0 1px;flex-shrink:0;line-height:1;}
+    .tp-sub-move:hover:not([disabled]){color:var(--rose);}
+    .tp-sub-move[disabled]{opacity:0.2;cursor:default;}
     .tp-sub-add-row{display:flex;gap:6px;margin-top:10px;margin-bottom:4px;}
     .tp-sub-input{flex:1;font-size:13px;border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;outline:none;background:rgba(255,248,252,0.8);font-family:inherit;}
     .tp-sub-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-lt);}
@@ -415,13 +418,13 @@
     <span class="tp-kbd">Esc to close</span>
   </div>
   <div class="tp-body">
-    <div class="tp-title" id="tpTitle" contenteditable="true" spellcheck="false" onblur="tpSaveTitle()"></div>
+    <div class="tp-title" id="tpTitle" contenteditable="true" spellcheck="false" onblur="tpSaveTitle()" oninput="_debSave('title',tpSaveTitle)"></div>
     <div class="tp-meta-row" id="tpMeta"></div>
     <div id="tpRotNote" style="display:none" class="tp-rot-note"></div>
     <div class="tp-sec">📝 Notes &amp; Steps</div>
     <div class="tp-notes" id="tpNotes" contenteditable="true" spellcheck="false"
       data-ph="Add steps, context, or sub-tasks…&#10;&#10;Tip: paste a screenshot with ⌘V"
-      onblur="tpSaveNotes()" onpaste="tpHandlePaste(event)"></div>
+      onblur="tpSaveNotes()" oninput="_debSave('notes',tpSaveNotes)" onpaste="tpHandlePaste(event)"></div>
     <div class="tp-sec">✅ Subtasks</div>
     <div id="tpSubtasks"></div>
     <div class="tp-sub-add-row">
@@ -988,7 +991,7 @@ function tHTML(t,ctx){
   <div class="chk${t.done?" done":""}" onclick="toggleDone('${t.id}')"></div>
   <div class="card-body">
     <div class="card-txt${t.done?" struck":""}" id="txt-${t.id}" contenteditable="true" spellcheck="false"
-      onblur="saveTxt('${t.id}',this)"
+      onblur="saveTxt('${t.id}',this)" oninput="_debSave('txt_${t.id}',()=>saveTxt('${t.id}',document.getElementById('txt-${t.id}')))"
       ondblclick="openTaskPanel('${t.id}')">${esc(t.text)}</div>
     ${subProg}
     <div class="card-tags">${pTag(t.priority)}${dTag(t.dueDate)}${bTag(t.bucket,ctx)}${rotTag(t)}${hn?`<span class="tag" style="background:#f5f3ff;color:#7e22ce;border:1px solid #e9d5ff">📝</span>`:""}</div>
@@ -1170,15 +1173,43 @@ function openTaskPanel(id){
   document.getElementById("taskPanel").classList.add("open");
 }
 function closeTaskPanel(){document.getElementById("taskPanel").classList.remove("open");_tpId=null;}
+// ── AUTO-SAVE UTILITIES ──────────────────────────────────────────
+const _deb={};
+function _debSave(key,fn,ms=700){clearTimeout(_deb[key]);_deb[key]=setTimeout(fn,ms);}
+function flushAndSave(){
+  if(_tpId){
+    const titleEl=document.getElementById("tpTitle");
+    if(titleEl){const t=S.tasks.find(x=>x.id===_tpId);if(t)t.text=titleEl.textContent.trim();}
+    const notesEl=document.getElementById("tpNotes");
+    if(notesEl){if(!S.taskData[_tpId])S.taskData[_tpId]={};S.taskData[_tpId].notes=notesEl.textContent;}
+  }
+  document.querySelectorAll(".card-txt[id^='txt-']").forEach(el=>{
+    const id=el.id.replace("txt-","");
+    const t=S.tasks.find(x=>x.id===id);if(t)t.text=el.textContent.trim();
+  });
+  save();
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushAndSave();});
+window.addEventListener("beforeunload",()=>flushAndSave());
+
 function tpRenderSubtasks(id){
   const d=S.taskData[id]||{};const subs=d.subtasks||[];
   document.getElementById("tpSubtasks").innerHTML=subs.length===0
     ?'<div style="font-size:12px;color:#ccc;padding:4px 2px">No subtasks yet</div>'
     :subs.map((s,i)=>`<div class="tp-sub-row">
       <input type="checkbox" class="tp-sub-check" ${s.done?"checked":""} onchange="tpToggleSubtask(${i})">
-      <span class="tp-sub-text${s.done?" done":""}">${s.text}</span>
+      <span class="tp-sub-text${s.done?" done":""}">${esc(s.text)}</span>
+      <button class="tp-sub-move" onclick="tpMoveSubtask(${i},-1)" ${i===0?"disabled":""}  title="Move up">▲</button>
+      <button class="tp-sub-move" onclick="tpMoveSubtask(${i},1)" ${i===subs.length-1?"disabled":""} title="Move down">▼</button>
       <button class="tp-sub-del" onclick="tpDeleteSubtask(${i})">✕</button>
     </div>`).join("");
+}
+function tpMoveSubtask(idx,dir){
+  if(!_tpId)return;
+  const subs=S.taskData[_tpId]?.subtasks;if(!subs)return;
+  const ni=idx+dir;if(ni<0||ni>=subs.length)return;
+  [subs[idx],subs[ni]]=[subs[ni],subs[idx]];
+  save();tpRenderSubtasks(_tpId);
 }
 function tpAddSubtask(){
   if(!_tpId)return;
