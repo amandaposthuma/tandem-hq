@@ -1122,7 +1122,12 @@ function dpUpdateDow(){const v=document.getElementById("dp-input").value;if(!v){
 function dpConfirm(){
   const v=document.getElementById("dp-input").value;
   if(_dpCtx==="add"){_addDt=v||null;document.getElementById("addDtBtn").textContent=v?`📅 ${v}`:"📅 Date";}
-  else if(_dpId){const t=S.tasks.find(x=>x.id===_dpId);if(t){t.dueDate=v||null;if(v===TODAY){t.isToday=true;}save();renderTasks();}}
+  else if(_dpId){const t=S.tasks.find(x=>x.id===_dpId);if(t){
+    t.dueDate=v||null;
+    if(v===TODAY){t.isToday=true;}
+    else if(v&&v!==TODAY){t.isToday=false;t.todayOrder=null;}
+    save();renderTasks();renderSidebarCounts();
+  }}
   closeDP();
 }
 function dpClear(){document.getElementById("dp-input").value="";dpConfirm();}
