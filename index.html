@@ -197,6 +197,14 @@
     .btn-no{background:none;border:1px solid var(--border2);border-radius:7px;color:var(--text-muted);padding:5px 10px;font-size:12px;font-family:inherit;cursor:pointer;}
     .btn-no:hover{background:rgba(0,0,0,0.04);}
     .add-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;color:#c0a0b0;font-size:12.5px;border:1px dashed transparent;transition:all .1s;margin-top:2px;}
+    .add-sub-list{margin:6px 0 0;}
+    .add-sub-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-mid);padding:2px 0;}
+    .add-sub-item span{flex:1;}
+    .add-sub-del{background:none;border:none;color:#c0a0b0;cursor:pointer;font-size:11px;padding:0 2px;line-height:1;flex-shrink:0;}
+    .add-sub-del:hover{color:var(--rose);}
+    .add-sub-row{display:flex;gap:5px;margin-top:5px;align-items:center;}
+    .add-sub-in{flex:1;font-size:12px;font-family:inherit;border:1px solid var(--border2);border-radius:6px;padding:5px 8px;outline:none;background:#fafafa;color:var(--text);}
+    .add-sub-in:focus{border-color:var(--rose);background:#fff;}
     .add-row:hover{color:var(--text-mid);border-color:rgba(190,24,93,0.2);background:rgba(255,255,255,0.5);}
     .add-plus{font-size:15px;color:#e0bfd0;}
     .add-row:hover .add-plus{color:var(--rose);}
@@ -537,6 +545,11 @@
     <div class="task-scroll" id="taskScroll">
       <div class="add-form" id="addForm">
         <textarea class="add-in" id="addIn" placeholder="What needs to get done?" rows="2"></textarea>
+        <div class="add-sub-list" id="addSubsList"></div>
+        <div class="add-sub-row">
+          <input class="add-sub-in" id="addSubIn" placeholder="+ Add a subtask…" onkeydown="if(event.key==='Enter'){event.preventDefault();pushAddSub();}">
+          <button class="a-opt" onclick="pushAddSub()">Add</button>
+        </div>
         <div class="add-opts">
           <select class="a-opt" id="addBucket"></select>
           <button class="a-opt" id="addPriBtn" onclick="cyclePri()">Priority</button>
@@ -1119,7 +1132,22 @@ function toggleShowDone(){SHOW_DONE=!SHOW_DONE;document.getElementById("fDone").
 function doSearch(q){SEARCH_Q=q;renderTasks();}
 
 // ADD FORM
-let _addPri=null,_addDt=null;
+let _addPri=null,_addDt=null,_addSubs=[];
+function pushAddSub(){
+  const di=document.getElementById("addSubIn");
+  const mi=document.getElementById("mobAddSubIn");
+  const el=(di&&di.offsetParent!==null)?di:mi;
+  if(!el)return;
+  const t=el.value.trim();if(!t)return;
+  _addSubs.push({text:t,done:false});el.value="";
+  renderAddSubs();
+}
+function removeAddSub(idx){_addSubs.splice(idx,1);renderAddSubs();}
+function renderAddSubs(){
+  const html=_addSubs.map((s,i)=>`<div class="add-sub-item"><span>• ${esc(s.text)}</span><button class="add-sub-del" onclick="removeAddSub(${i})">✕</button></div>`).join("");
+  const d=document.getElementById("addSubsList");if(d)d.innerHTML=html;
+  const m=document.getElementById("mobAddSubsList");if(m)m.innerHTML=html;
+}
 function showAddForm(){
   const f=document.getElementById("addForm");f.style.display="block";
   document.getElementById("addIn").value="";_addPri=null;_addDt=null;
@@ -1127,6 +1155,7 @@ function showAddForm(){
   document.getElementById("addDtBtn").textContent="📅 Date";
   const sel=document.getElementById("addBucket");
   sel.innerHTML=BUCKETS.map(b=>`<option value="${b.id}"${(VIEW!=="today"&&VIEW!=="all"&&VIEW===b.id)?" selected":""}>${b.id}</option>`).join("");
+  _addSubs=[];renderAddSubs();document.getElementById("addSubIn").value="";
   document.getElementById("addIn").focus();
   document.getElementById("taskScroll").scrollTop=0;
 }
@@ -1136,8 +1165,11 @@ function submitAdd(){
   const txt=document.getElementById("addIn").value.trim();if(!txt){hideAddForm();return;}
   const bucket=document.getElementById("addBucket").value;
   const isToday=VIEW==="today"||_addDt===TODAY;
-  const t={id:uid(),text:txt,bucket,priority:_addPri,isToday,todayOrder:isToday?Math.max(0,...S.tasks.filter(x=>x.isToday).map(x=>x.todayOrder??0))+1:null,dueDate:_addDt,done:false,createdAt:Date.now()};
-  S.tasks.unshift(t);save();hideAddForm();renderTasks();renderSidebarCounts();showToast("Task added");
+  const newId=uid();
+  const t={id:newId,text:txt,bucket,priority:_addPri,isToday,todayOrder:isToday?Math.max(0,...S.tasks.filter(x=>x.isToday).map(x=>x.todayOrder??0))+1:null,dueDate:_addDt,done:false,createdAt:Date.now()};
+  S.tasks.unshift(t);
+  if(_addSubs.length){if(!S.taskData[newId])S.taskData[newId]={};S.taskData[newId].subtasks=_addSubs.map(x=>({...x}));}
+  save();hideAddForm();renderTasks();renderSidebarCounts();showToast("Task added");
 }
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&document.activeElement.id==="addIn"){e.preventDefault();submitAdd();}});
 
@@ -1437,14 +1469,18 @@ function mobOpenQA(){document.getElementById("mob-quick-add").classList.add("ope
 function mobCloseQA(){
   document.getElementById("mob-quick-add").classList.remove("open");
   document.getElementById("mob-qa-date").value="";
+  _addSubs=[];renderAddSubs();
 }
 function mobSubmitQA(){
   const text=document.getElementById("mob-qa-in").value.trim();if(!text)return;
   const bucket=document.getElementById("mob-qa-bucket").value;
   const due=document.getElementById("mob-qa-date").value||null;
   const isToday=!due||due===TODAY;
-  const t={id:uid(),text,bucket,priority:"P1",isToday,todayOrder:isToday?Date.now():null,dueDate:due,done:false,createdAt:Date.now()};
-  S.tasks.unshift(t);save();renderTasks();renderSidebarCounts();
+  const newId=uid();
+  const t={id:newId,text,bucket,priority:"P1",isToday,todayOrder:isToday?Date.now():null,dueDate:due,done:false,createdAt:Date.now()};
+  S.tasks.unshift(t);
+  if(_addSubs.length){if(!S.taskData[newId])S.taskData[newId]={};S.taskData[newId].subtasks=_addSubs.map(x=>({...x}));}
+  save();renderTasks();renderSidebarCounts();
   document.getElementById("mob-qa-in").value="";mobCloseQA();showToast("Task added");
 }
 // Populate bucket select in quick-add sheet
@@ -1489,6 +1525,11 @@ window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today
   <div class="mob-qa-row">
     <select class="mob-qa-sel" id="mob-qa-bucket" style="flex:2"></select>
     <input type="date" class="mob-qa-date" id="mob-qa-date" title="Due date (optional)">
+  </div>
+  <div class="add-sub-list" id="mobAddSubsList" style="margin-top:8px"></div>
+  <div class="add-sub-row" style="margin-top:6px">
+    <input class="add-sub-in" id="mobAddSubIn" style="font-size:14px;padding:7px 10px;" placeholder="+ Add a subtask…" onkeydown="if(event.key==='Enter'){event.preventDefault();pushAddSub();}">
+    <button class="mob-qa-ok" style="padding:7px 12px;" onclick="pushAddSub()">+</button>
   </div>
   <div class="mob-qa-row" style="justify-content:flex-end;margin-top:6px">
     <button class="mob-qa-cancel" onclick="mobCloseQA()">Cancel</button>
