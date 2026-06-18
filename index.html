@@ -391,6 +391,7 @@
       .mob-qa-sel{flex:1;font-size:14px;font-family:inherit;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;background:#fafafa;color:var(--text);}
       .mob-qa-ok{background:var(--rose);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;}
       .mob-qa-cancel{background:none;border:none;color:#aaa;font-size:14px;font-family:inherit;cursor:pointer;padding:10px 8px;}
+      .mob-qa-date{flex:1;font-size:13px;font-family:inherit;border:1.5px solid var(--border);border-radius:8px;padding:8px 6px;background:#fafafa;color:var(--text);min-width:0;}
       /* task panel full-screen on mobile */
       .task-panel{width:100vw;max-width:100vw;}
     }
@@ -846,6 +847,7 @@ function bTag(bid,ctx){if(ctx!=="today")return"";const c=bcolor(bid);return`<spa
 
 // VIEW SWITCH
 function switchView(v){
+  if(isMobile())mobCloseSidebar();
   VIEW=v;
   document.querySelectorAll(".sb-item").forEach(el=>el.classList.remove("active"));
   if(v==="today")document.getElementById("nav-today").classList.add("active");
@@ -1360,11 +1362,16 @@ function mobUpdateTabs(v){
   if(map[v])document.getElementById(map[v]).classList.add("active");
 }
 function mobOpenQA(){document.getElementById("mob-quick-add").classList.add("open");document.getElementById("mob-qa-in").focus();}
-function mobCloseQA(){document.getElementById("mob-quick-add").classList.remove("open");}
+function mobCloseQA(){
+  document.getElementById("mob-quick-add").classList.remove("open");
+  document.getElementById("mob-qa-date").value="";
+}
 function mobSubmitQA(){
   const text=document.getElementById("mob-qa-in").value.trim();if(!text)return;
   const bucket=document.getElementById("mob-qa-bucket").value;
-  const t={id:uid(),text,bucket,priority:"P1",isToday:true,todayOrder:Date.now(),dueDate:TODAY,done:false,createdAt:Date.now()};
+  const due=document.getElementById("mob-qa-date").value||null;
+  const isToday=!due||due===TODAY;
+  const t={id:uid(),text,bucket,priority:"P1",isToday,todayOrder:isToday?Date.now():null,dueDate:due,done:false,createdAt:Date.now()};
   S.tasks.unshift(t);save();renderTasks();renderSidebarCounts();
   document.getElementById("mob-qa-in").value="";mobCloseQA();showToast("Task added");
 }
@@ -1408,7 +1415,10 @@ window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today
   <div class="mob-qa-title">Quick Add</div>
   <textarea class="mob-qa-in" id="mob-qa-in" rows="3" placeholder="What needs to get done?"></textarea>
   <div class="mob-qa-row">
-    <select class="mob-qa-sel" id="mob-qa-bucket"></select>
+    <select class="mob-qa-sel" id="mob-qa-bucket" style="flex:2"></select>
+    <input type="date" class="mob-qa-date" id="mob-qa-date" title="Due date (optional)">
+  </div>
+  <div class="mob-qa-row" style="justify-content:flex-end;margin-top:6px">
     <button class="mob-qa-cancel" onclick="mobCloseQA()">Cancel</button>
     <button class="mob-qa-ok" onclick="mobSubmitQA()">Add</button>
   </div>
