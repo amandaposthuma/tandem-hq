@@ -809,7 +809,7 @@ function loadState(){
   const now=Date.now();
   for(const t of CLAUDE_SYNC.tasks){
     if(!haveMap.has(t.id)){s.tasks.push({...t,createdAt:now});}
-    else{const ex=haveMap.get(t.id);ex.text=t.text;ex.bucket=t.bucket;ex.priority=t.priority;if(!ex.createdAt)ex.createdAt=now;}
+    else{const ex=haveMap.get(t.id);ex.bucket=t.bucket;ex.priority=t.priority;if(!ex.createdAt)ex.createdAt=now;}
   }
   // Purge stale tasks from old CLAUDE_SYNC versions — keep only user-created (u-prefix) or current sync IDs
   const syncIdSet=new Set(CLAUDE_SYNC.tasks.map(t=>t.id));
