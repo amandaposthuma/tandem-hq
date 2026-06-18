@@ -418,13 +418,13 @@
     <span class="tp-kbd">Esc to close</span>
   </div>
   <div class="tp-body">
-    <div class="tp-title" id="tpTitle" contenteditable="true" spellcheck="false" onblur="tpSaveTitle()" oninput="_debSave('title',tpSaveTitle)"></div>
+    <div class="tp-title" id="tpTitle" contenteditable="true" spellcheck="false" onblur="tpSaveTitle()" oninput="_debSave('title',tpSaveTitle,300)"></div>
     <div class="tp-meta-row" id="tpMeta"></div>
     <div id="tpRotNote" style="display:none" class="tp-rot-note"></div>
     <div class="tp-sec">📝 Notes &amp; Steps</div>
     <div class="tp-notes" id="tpNotes" contenteditable="true" spellcheck="false"
       data-ph="Add steps, context, or sub-tasks…&#10;&#10;Tip: paste a screenshot with ⌘V"
-      onblur="tpSaveNotes()" oninput="_debSave('notes',tpSaveNotes)" onpaste="tpHandlePaste(event)"></div>
+      onblur="tpSaveNotes()" oninput="_debSave('notes',tpSaveNotes,400)" onpaste="tpHandlePaste(event)"></div>
     <div class="tp-sec">✅ Subtasks</div>
     <div id="tpSubtasks"></div>
     <div class="tp-sub-add-row">
@@ -991,7 +991,7 @@ function tHTML(t,ctx){
   <div class="chk${t.done?" done":""}" onclick="toggleDone('${t.id}')"></div>
   <div class="card-body">
     <div class="card-txt${t.done?" struck":""}" id="txt-${t.id}" contenteditable="true" spellcheck="false"
-      onblur="saveTxt('${t.id}',this)" oninput="_debSave('txt_${t.id}',()=>saveTxt('${t.id}',document.getElementById('txt-${t.id}')))"
+      onblur="saveTxt('${t.id}',this)" oninput="saveTxt('${t.id}',this)"
       ondblclick="openTaskPanel('${t.id}')">${esc(t.text)}</div>
     ${subProg}
     <div class="card-tags">${pTag(t.priority)}${dTag(t.dueDate)}${bTag(t.bucket,ctx)}${rotTag(t)}${hn?`<span class="tag" style="background:#f5f3ff;color:#7e22ce;border:1px solid #e9d5ff">📝</span>`:""}</div>
@@ -1413,8 +1413,8 @@ function mobInitQA(){
 }
 // Register service worker
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
-// Init mobile on load
-window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today");});
+// Init mobile on load + start periodic flush
+window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today");setInterval(flushAndSave,5000);});
 </script>
 
 <!-- MOBILE OVERLAY -->
