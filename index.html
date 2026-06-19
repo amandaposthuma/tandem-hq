@@ -1072,14 +1072,9 @@ function renderTasks(){
   if(VIEW==="today"){
     const tasks=filterTasks(S.tasks.filter(t=>taskIsToday(t))).sort((a,b)=>(a.todayOrder??999)-(b.todayOrder??999));
     if(!tasks.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">✨</div><div class="empty-msg">Nothing due today.<br>Add a task or pin something from a client view.</div></div>`;return;}
-    const groups={};for(const t of tasks){if(!groups[t.bucket])groups[t.bucket]=[];groups[t.bucket].push(t);}
-    for(const[bid,bts]of Object.entries(groups)){
-      const c=bcolor(bid);
-      html+=`<div class="group-hdr"><span class="group-hdr-dot" style="background:${c}"></span><span class="group-hdr-name">${esc(blabel(bid))}</span><span class="group-hdr-cnt">${bts.length}</span></div>
-      <div class="group-drop" ondragover="dzOver(event)" ondragenter="dzEnter(event,'today')" ondragleave="dzLeave(event)" ondrop="dzDrop(event,'today')">`;
-      for(let i=0;i<bts.length;i++)html+=tHTML(bts[i],"today",{up:i>0,dn:i<bts.length-1});
-      html+=`</div>`;
-    }
+    html+=`<div class="group-drop" ondragover="dzOver(event)" ondragenter="dzEnter(event,'today')" ondragleave="dzLeave(event)" ondrop="dzDrop(event,'today')">`;
+    for(let i=0;i<tasks.length;i++)html+=tHTML(tasks[i],"today",{up:i>0,dn:i<tasks.length-1});
+    html+=`</div>`;
     html+=`<div class="add-row" onclick="showAddForm()"><span class="add-plus">+</span>Add to Today</div>`;
   } else if(VIEW==="all"){
     const pm={"P1":0,"P2":1,"P3":2};
@@ -1113,13 +1108,12 @@ function renderTasks(){
   el.innerHTML=html;
 }
 function moveTodayTask(id,dir){
-  const task=S.tasks.find(t=>t.id===id);if(!task)return;
-  const peers=S.tasks.filter(t=>taskIsToday(t)&&t.bucket===task.bucket).sort((a,b)=>(a.todayOrder??999)-(b.todayOrder??999));
-  peers.forEach((t,i)=>{t.todayOrder=i*10;});
-  const idx=peers.findIndex(t=>t.id===id);if(idx===-1)return;
-  const ni=idx+dir;if(ni<0||ni>=peers.length)return;
-  const ao=peers[idx].todayOrder,bo=peers[ni].todayOrder;
-  peers[idx].todayOrder=bo;peers[ni].todayOrder=ao;
+  const all=S.tasks.filter(t=>taskIsToday(t)).sort((a,b)=>(a.todayOrder??999)-(b.todayOrder??999));
+  all.forEach((t,i)=>{t.todayOrder=i*10;});
+  const idx=all.findIndex(t=>t.id===id);if(idx===-1)return;
+  const ni=idx+dir;if(ni<0||ni>=all.length)return;
+  const ao=all[idx].todayOrder,bo=all[ni].todayOrder;
+  all[idx].todayOrder=bo;all[ni].todayOrder=ao;
   save();renderTasks();
 }
 function renderTasksVboard(el){
