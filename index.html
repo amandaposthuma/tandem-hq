@@ -314,6 +314,9 @@
     .tp-sub-move{background:none;border:none;color:#d0d0d0;font-size:10px;cursor:pointer;padding:0 1px;flex-shrink:0;line-height:1;}
     .tp-sub-move:hover:not([disabled]){color:var(--rose);}
     .tp-sub-move[disabled]{opacity:0.2;cursor:default;}
+    .today-mv-btn{background:none;border:none;color:#d0b8cc;cursor:pointer;font-size:10px;padding:1px 3px;line-height:1;border-radius:3px;flex-shrink:0;}
+    .today-mv-btn:hover:not([disabled]){color:var(--rose);background:var(--rose-lt);}
+    .today-mv-btn[disabled]{opacity:0.22;cursor:default;}
     .tp-sub-add-row{display:flex;gap:6px;margin-top:10px;margin-bottom:4px;}
     .tp-sub-input{flex:1;font-size:13px;border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;outline:none;background:rgba(255,248,252,0.8);font-family:inherit;}
     .tp-sub-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-lt);}
@@ -1026,12 +1029,13 @@ function renderSidebarCounts(){
 }
 
 // TASK HTML
-function tHTML(t,ctx){
+function tHTML(t,ctx,mv={}){
   const c=bcolor(t.bucket);const hn=hasNotes(t.id);
   const isPin=taskIsToday(t);
   const unpin=isPin?`<button class="ta" title="Remove from Today" onclick="unpinT('${t.id}')">↩</button>`:`<button class="ta" title="Pin to Today" onclick="pinT('${t.id}')">📌</button>`;
   const subs=(S.taskData[t.id]?.subtasks)||[];const sc=subs.length;const sd=subs.filter(s=>s.done).length;
   const subProg=sc>0?`<div class="task-sub-progress">${sd}/${sc} subtasks</div>`:"";
+  const mvBtns=ctx==="today"?`<button class="ta today-mv-btn" title="Move up" onclick="moveTodayTask('${t.id}',-1)" ${mv.up?"":'disabled'}>▲</button><button class="ta today-mv-btn" title="Move down" onclick="moveTodayTask('${t.id}',1)" ${mv.dn?"":'disabled'}>▼</button>`:"";
   return`<div class="task-card${hn?" has-notes":""}" id="ti-${t.id}" draggable="true"
   ondragstart="tDragStart(event,'${t.id}')" ondragend="tDragEnd()"
   ondragover="tDragOver(event,'${t.id}')" ondrop="tDropOn(event,'${t.id}')">
@@ -1046,6 +1050,7 @@ function tHTML(t,ctx){
     <div class="card-tags">${pTag(t.priority)}${dTag(t.dueDate)}${bTag(t.bucket,ctx)}${rotTag(t)}${hn?`<span class="tag" style="background:#f5f3ff;color:#7e22ce;border:1px solid #e9d5ff">📝</span>`:""}</div>
   </div>
   <div class="card-actions">
+    ${mvBtns}
     <button class="ta notes-btn" title="Open detail" onclick="openTaskPanel('${t.id}')">💬</button>
     <button class="ta" title="Set due date" onclick="openDP('${t.id}','task',event)">📅</button>
     ${unpin}
@@ -1072,7 +1077,7 @@ function renderTasks(){
       const c=bcolor(bid);
       html+=`<div class="group-hdr"><span class="group-hdr-dot" style="background:${c}"></span><span class="group-hdr-name">${esc(blabel(bid))}</span><span class="group-hdr-cnt">${bts.length}</span></div>
       <div class="group-drop" ondragover="dzOver(event)" ondragenter="dzEnter(event,'today')" ondragleave="dzLeave(event)" ondrop="dzDrop(event,'today')">`;
-      for(const t of bts)html+=tHTML(t,"today");
+      for(let i=0;i<bts.length;i++)html+=tHTML(bts[i],"today",{up:i>0,dn:i<bts.length-1});
       html+=`</div>`;
     }
     html+=`<div class="add-row" onclick="showAddForm()"><span class="add-plus">+</span>Add to Today</div>`;
@@ -1106,6 +1111,16 @@ function renderTasks(){
     html+=`<div class="add-row" onclick="showAddForm()"><span class="add-plus">+</span>Add task</div>`;
   }
   el.innerHTML=html;
+}
+function moveTodayTask(id,dir){
+  const task=S.tasks.find(t=>t.id===id);if(!task)return;
+  const peers=S.tasks.filter(t=>taskIsToday(t)&&t.bucket===task.bucket).sort((a,b)=>(a.todayOrder??999)-(b.todayOrder??999));
+  peers.forEach((t,i)=>{t.todayOrder=i*10;});
+  const idx=peers.findIndex(t=>t.id===id);if(idx===-1)return;
+  const ni=idx+dir;if(ni<0||ni>=peers.length)return;
+  const ao=peers[idx].todayOrder,bo=peers[ni].todayOrder;
+  peers[idx].todayOrder=bo;peers[ni].todayOrder=ao;
+  save();renderTasks();
 }
 function renderTasksVboard(el){
   el.innerHTML=`<div class="vb-full-wrap">
