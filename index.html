@@ -415,7 +415,10 @@
       #mob-quick-add{display:none!important;}
       #mob-overlay{display:none!important;}
     }
+    #sync-dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block;margin-left:10px;vertical-align:middle;cursor:default;flex-shrink:0;transition:background 0.4s;}
   </style>
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -532,7 +535,7 @@
     </div>
     <div class="main-header">
       <div class="main-title" id="mainTitle">Today<span class="main-title-sub" id="mainSub"></span></div>
-      <div class="hdr-clock" id="hdrClock"></div>
+      <div class="hdr-clock" id="hdrClock"></div><span id="sync-dot" title="Sync not configured"></span>
       <button class="add-btn" onclick="showAddForm()">+ New Task</button>
     </div>
     <div class="toolbar" id="mainToolbar">
@@ -844,8 +847,98 @@ function loadState(){
   s.lastSync=CLAUDE_SYNC.lastSync;
   return s;
 }
-function save(){localStorage.setItem(SK,JSON.stringify(S));}
+function save(){localStorage.setItem(SK,JSON.stringify(S));if(_syncEnabled)pushToCloud();}
 const S=loadState();
+
+// ─── CLOUD SYNC (Firebase Realtime Database) ──────────────────────────────
+// To enable cross-device sync, create a free Firebase project and fill in below.
+// Steps: console.firebase.google.com → Add project → Build → Realtime Database
+//        → Create database → Start in test mode → copy the two values below.
+const FB_CONFIG = {
+  apiKey:      "",   // Project Settings > Your apps > Web app config
+  databaseURL: ""    // e.g. https://your-project-default-rtdb.firebaseio.com
+};
+
+let _db=null, _syncEnabled=false, _lastPushTs=0;
+
+function setSyncDot(state){
+  const el=document.getElementById("sync-dot"); if(!el)return;
+  const colors={off:"#d1d5db",syncing:"#f59e0b",synced:"#22c55e",error:"#ef4444"};
+  const tips={off:"Sync not configured",syncing:"Syncing…",synced:"Synced ✓",error:"Sync error — check console"};
+  el.style.background=colors[state]||colors.off; el.title=tips[state]||"";
+}
+
+function applyRemote(remote){
+  if(remote.tasks)S.tasks=remote.tasks;
+  if(remote.taskData)S.taskData=remote.taskData;
+  if(remote.goals)S.goals=remote.goals;
+  if(remote.notes)S.notes=remote.notes;
+  if(remote.col)S.col=remote.col;
+  if(remote.vboard)S.vboard=remote.vboard;
+  S._savedAt=remote._savedAt;
+  // Re-apply CLAUDE_SYNC bucket/priority (never text)
+  const haveMap=new Map(S.tasks.map(t=>[t.id,t]));
+  const syncIdSet=new Set(CLAUDE_SYNC.tasks.map(t=>t.id));
+  for(const t of CLAUDE_SYNC.tasks){
+    if(haveMap.has(t.id)){const ex=haveMap.get(t.id);ex.bucket=t.bucket;ex.priority=t.priority;}
+    else S.tasks.push({...t,createdAt:Date.now()});
+  }
+  S.tasks=S.tasks.filter(t=>t.id.startsWith("u")||syncIdSet.has(t.id));
+  localStorage.setItem(SK,JSON.stringify(S));
+  setSyncDot("synced");
+}
+
+function pushToCloud(){
+  if(!_syncEnabled||!_db)return;
+  const payload=JSON.parse(JSON.stringify(S));
+  payload._savedAt=Date.now();
+  S._savedAt=payload._savedAt;
+  _lastPushTs=payload._savedAt;
+  setSyncDot("syncing");
+  _db.ref("state").set(payload).then(()=>setSyncDot("synced")).catch(()=>setSyncDot("error"));
+}
+
+function manualSync(){
+  if(!_syncEnabled){showToast("Sync not set up yet");return;}
+  setSyncDot("syncing");
+  _db.ref("state").once("value").then(snap=>{
+    const remote=snap.val();
+    if(remote&&remote._savedAt>(S._savedAt||0)+500){applyRemote(remote);render();showToast("↻ Synced!");}
+    else{pushToCloud();showToast("✓ Up to date");}
+  }).catch(()=>{setSyncDot("error");showToast("Sync failed");});
+}
+
+function initSync(){
+  if(!FB_CONFIG.apiKey||!FB_CONFIG.databaseURL){setSyncDot("off");return;}
+  if(typeof firebase==="undefined"){console.warn("Firebase SDK not loaded");setSyncDot("error");return;}
+  try{
+    if(!firebase.apps.length)firebase.initializeApp(FB_CONFIG);
+    _db=firebase.database();
+    _syncEnabled=true;
+    setSyncDot("syncing");
+    // Pull on startup — use cloud if it's newer
+    _db.ref("state").once("value").then(snap=>{
+      const remote=snap.val();
+      if(!remote){pushToCloud();return;}
+      if((remote._savedAt||0)>(S._savedAt||0)+500){applyRemote(remote);render();showToast("↻ Synced from cloud");}
+      else{pushToCloud();}
+    });
+    // Real-time listener: another device saved → update this one
+    _db.ref("state").on("value",snap=>{
+      const remote=snap.val(); if(!remote)return;
+      if(remote._savedAt>_lastPushTs+2000){applyRemote(remote);render();}
+    });
+    // Auto-refresh when this tab/app comes to the foreground
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible"&&_syncEnabled&&_db){
+        _db.ref("state").once("value").then(snap=>{
+          const remote=snap.val();
+          if(remote&&(remote._savedAt||0)>(S._savedAt||0)+500){applyRemote(remote);render();showToast("↻ Refreshed");}
+        });
+      }
+    });
+  }catch(e){console.warn("Sync init failed:",e);setSyncDot("error");}
+}
 
 // UNDO
 let _undoStack=[];
@@ -1477,7 +1570,7 @@ function mobInitQA(){
 // Register service worker
 if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 // Init mobile on load + start periodic flush
-window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today");setInterval(flushAndSave,5000);});
+window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today");setInterval(flushAndSave,5000);initSync();});
 </script>
 
 <!-- MOBILE OVERLAY -->
@@ -1494,6 +1587,9 @@ window.addEventListener("DOMContentLoaded",()=>{mobInitQA();mobUpdateTabs("today
   <button class="mob-tab" id="mob-tab-inbox" onclick="mobSwitchView('inbox')">
     <span class="mob-icon">📥</span>Inbox
     <span class="mob-badge" id="mob-inbox-badge" style="display:none"></span>
+  </button>
+  <button class="mob-tab" id="mob-tab-sync" onclick="manualSync()">
+    <span class="mob-icon" style="font-style:normal">↻</span>Sync
   </button>
   <button class="mob-tab" id="mob-tab-menu" onclick="mobOpenSidebar()">
     <span class="mob-icon">☰</span>Menu
