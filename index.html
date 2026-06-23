@@ -661,18 +661,21 @@ const CLAUDE_PROPOSALS = [
 ];
 // CLAUDE_PROPOSALS_END
 // ══════════════════════════════════════════════════════════════
-// CLAUDE_DATA_START — synced Jun 18, 2026 · consolidated (23 tasks → subtasks)
+// CLAUDE_DATA_START — restored Jun 23, 2026 · all tasks from git (pre-consolidation) + Jun 18 additions
 // ══════════════════════════════════════════════════════════════
 const CLAUDE_SYNC = {
-  lastSync: "Jun 18 · consolidated into subtasks",
+  lastSync: "Jun 23 · full restore from git",
   tasks: [
     // ── TODAY Jun 17 ──────────────────────────────────────────
     { id:"t1",  text:"HKH: Tatis follow-up — schedule call Thu or Fri",                                    bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:0,  dueDate:"2026-06-17", done:false },
     { id:"t4",  text:"HKH: Update proposal generator — 4 tiers x 2 niches",                               bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:2,  dueDate:"2026-06-17", done:false },
     { id:"t5",  text:"HKH: Proposals set to invite-only (not whole org)",                                  bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:3,  dueDate:"2026-06-17", done:false },
     { id:"t16", text:"HKH: Stephanie — set up Claude account + pin Tephy + create design system + social media & biz dev next steps", bucket:"HKH", priority:"P1", isToday:true, todayOrder:4, dueDate:"2026-06-17", done:false },
+    { id:"t61", text:"OT Part 1: Load data room with Lais files",                                          bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:6,  dueDate:"2026-06-17", done:false },
     { id:"t6",  text:"OT Part 1 (Aitana/Laiz): Design + set up reporting workflow",                        bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:7,  dueDate:"2026-06-17", done:false },
     { id:"t97", text:"OT Part 2 (Alice/Ana): Design + set up reporting workflow",                          bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:8,  dueDate:"2026-06-17", done:false },
+    { id:"t8",  text:"OT: Review Lais files (Portugal Brands, Douglas) + reply with next steps",           bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:8,  dueDate:"2026-06-17", done:false },
+    { id:"t9",  text:"OT: Schedule demo call Alice + Ana (Thu/Fri) + fup for PPT",                        bucket:"HKH",          priority:"P1", isToday:true,  todayOrder:9,  dueDate:"2026-06-17", done:false },
     { id:"t12", text:"FGC: Meeting prep — talking points + audit to-do + plan this week",                  bucket:"FGC",          priority:"P1", isToday:true,  todayOrder:12, dueDate:"2026-06-17", done:false },
     { id:"t13", text:"FGC: Reply to Claudia — Internal || Ajuste proposta update",                         bucket:"FGC",          priority:"P1", isToday:true,  todayOrder:13, dueDate:"2026-06-17", done:false },
     { id:"n2",  text:"FGC: Schedule 20-min calls — Claudia (references) + Fabiana",                        bucket:"FGC",          priority:"P1", isToday:true,  todayOrder:15, dueDate:"2026-06-17", done:false },
@@ -683,77 +686,99 @@ const CLAUDE_SYNC = {
     { id:"n6",  text:"Personal: Call Grandma + test council skill",                                         bucket:"Personal",     priority:"P2", isToday:true,  todayOrder:20, dueDate:"2026-06-17", done:false },
     { id:"t90", text:"Personal: DUA — send initial follow-up today",                                       bucket:"Personal",     priority:"P2", isToday:true,  todayOrder:21, dueDate:"2026-06-17", done:false },
 
-    // ── TOMORROW Jun 18 ───────────────────────────────────────
+    // ── Jun 18 ────────────────────────────────────────────────
     { id:"t64", text:"HKH: Make proposal skill better — fix formatting + web search for logos",             bucket:"HKH",          priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"t65", text:"FGC: Create Claude skills for social media — research, write, format rules",          bucket:"FGC",          priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"t66", text:"Strides: Prep + plan follow-up with Neil — 3dSole conversation",                     bucket:"Strides",      priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"n7",  text:"Tandem: Watch Mariah Brunner VS Code agentic workflow videos — set up screen-reading agent", bucket:"Tandem", priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"t78", text:"Tandem: Look into Strava MCP",                                                       bucket:"Tandem",       priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
+    { id:"t91", text:"Personal: Amazon returns — ask Eric for QR codes",                                   bucket:"Personal",     priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"n8",  text:"Personal: Text Alan updates",                                                        bucket:"Personal",     priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
     { id:"t67", text:"Personal: Change WhatsApp profile pic",                                              bucket:"Personal",     priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-06-18", done:false },
 
-    // ── FRIDAY Jun 19 ─────────────────────────────────────────
+    // ── Jun 19 ────────────────────────────────────────────────
     { id:"t68", text:"HKH: Plan for profitability meeting Monday — agenda + data prep",                    bucket:"HKH",          priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-19", done:false },
     { id:"t49", text:"Tandem: Website — consulting offering + 'still doing X manually?' hook + Palantir inspo + deploy", bucket:"Tandem", priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-19", done:false },
     { id:"n9",  text:"Personal: Amazon returns (full process) + confirm Upwork escrow refund",             bucket:"Personal",     priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-19", done:false },
     { id:"n10", text:"Personal: Admin — SHIF, DUA, EYHR: tell them about being let go before 3-year mark", bucket:"Personal",    priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-19", done:false },
     { id:"n11", text:"Personal: Clean emails + call Bruno + Lulu return + mail pickup",                    bucket:"Personal",     priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-19", done:false },
 
-    // ── MONDAY Jun 22 ─────────────────────────────────────────
+    // ── Jun 22 ────────────────────────────────────────────────
     { id:"t37", text:"VH: Send detailed proposal (retainer vs one-off)",                                   bucket:"Vital Hackers", priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
+    { id:"t17", text:"HKH: KPI reporting — translate KPIs to English, upload to Claude",                  bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
     { id:"t72", text:"Tandem: Finance setup — itemized receipts (Ubers x Alan), invoice automation + recurring 25th", bucket:"Tandem", priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
     { id:"n13", text:"Personal: Call DUA",                                                                 bucket:"Personal",     priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-22", done:false },
 
-    // ── TUESDAY Jun 23 ────────────────────────────────────────
+    // ── Jun 23 ────────────────────────────────────────────────
     { id:"t70", text:"Tandem: Define pricing + packaging — watch Dani videos + Fluency AI session + ask Eric to demo", bucket:"Tandem", priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-23", done:false },
     { id:"t71", text:"FGC: Plan and prep for FGC meeting",                                                 bucket:"FGC",          priority:"P1", isToday:false, todayOrder:null, dueDate:"2026-06-23", done:false },
     { id:"t15", text:"HKH: Build HKH Claude expert — system prompt + deep load brand/KPIs/team context",  bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-23", done:false },
 
-    // ── WEDNESDAY Jun 24 ─────────────────────────────────────
+    // ── Jun 24 ────────────────────────────────────────────────
     { id:"t57", text:"Personal: Shopping — buy basic clothing + shoes",                                    bucket:"Personal",     priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-06-24", done:false },
     { id:"t73", text:"Personal: Call jury duty inquiry — 305-375-5719",                                    bucket:"Personal",     priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-06-24", done:false },
 
-    // ── THURSDAY Jun 25 ──────────────────────────────────────
+    // ── Jun 25 ────────────────────────────────────────────────
     { id:"t74", text:"Personal: Tell Brit about Boston wedding",                                           bucket:"Personal",     priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-06-25", done:false },
     { id:"t95", text:"HKH: Cowork deadline monitoring",                                                    bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-25", done:false },
 
-    // ── FRIDAY Jun 26 ────────────────────────────────────────
+    // ── Jun 26 ────────────────────────────────────────────────
     { id:"t76", text:"Tandem: Gustavo mtg — lojas cem store inspection + EA agent + containerize for Gus/Jaime/Fafa/Tephy", bucket:"Tandem", priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-26", done:false },
 
-    // ── JULY 1 ───────────────────────────────────────────────
+    // ── Jun 30 ────────────────────────────────────────────────
+    { id:"t24", text:"OT: Map billing flow — spreadsheet+AI vs Qonto",                                    bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-30", done:false },
+    { id:"t96", text:"OT Part 3 (Tatiana): Integrate with Qonto",                                         bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-30", done:false },
+
+    // ── Jul 1 ────────────────────────────────────────────────
+    { id:"t27", text:"FGC: Website — team page: update Ali, bios, team photos, carta apresentacao",       bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-07-01", done:false },
     { id:"n17", text:"FGC: Parking lot — CRM overhaul + AI integration (Clio)",                           bucket:"FGC",          priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-07-01", done:false },
 
-    // ── JULY 4 ───────────────────────────────────────────────
+    // ── Jul 4 ────────────────────────────────────────────────
     { id:"n18", text:"FGC: Parking lot — future initiatives",                                              bucket:"FGC",          priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-07-04", done:false },
 
-    // ── JULY 7 ───────────────────────────────────────────────
+    // ── Jul 7 ────────────────────────────────────────────────
     { id:"n19", text:"HKH: Scope September negotiation prep tool — Phase 4 consulting deliverable",        bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-07-07", done:false },
 
-    // ── JULY 17 ──────────────────────────────────────────────
+    // ── Jul 17 ───────────────────────────────────────────────
     { id:"t75", text:"Personal: Check about Schiff",                                                       bucket:"Personal",     priority:"P3", isToday:false, todayOrder:null, dueDate:"2026-07-17", done:false },
 
     // ── HKH BACKLOG ───────────────────────────────────────────
     { id:"t14", text:"HKH: Teams account switch to 5 seats",                                               bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t20", text:"HKH: Investigate Granola + Drive + Claude integrations",                             bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"t8",  text:"OT: Douglas & Druni",                                                                bucket:"HKH",          priority:"P1", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"t19", text:"OT: Sephora & Lafayette",                                                            bucket:"HKH",          priority:"P1", isToday:false, todayOrder:null, dueDate:null, done:false },
-    { id:"t96", text:"OT Part 3 (Tatiana): Integrate with Qonto",                                          bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:"2026-06-30", done:false },
+    { id:"t19", text:"HKH: Workflow instructions for Alice — weekly Sephora + monthly Lafayette",          bucket:"HKH",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
 
     // ── FGC BACKLOG ───────────────────────────────────────────
     { id:"t26", text:"FGC: Site — review designer drafts, edit About Us, finalize + launch",               bucket:"FGC",          priority:"P1", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t30", text:"FGC: Developer brief — Coastal Blue (Sherwin Williams ref) + G animation brief",    bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t31", text:"FGC: Review full stack + scope client reporting — Clio, Canopy, Athennian, M365, QuickBooks", bucket:"FGC", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t32", text:"FGC: Map Fabi & Claudia repetitive processes — build Claude skills",                 bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t34", text:"FGC: Begin integrations — QuickBooks to Clio to Microsoft 365",                     bucket:"FGC",          priority:"P3", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t35", text:"FGC: Verify Clio plan for eSignature features",                                     bucket:"FGC",          priority:"P3", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t81", text:"FGC: Request Fabi's Smart US Investment info",                                       bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t82", text:"FGC: Send pre-approval of 3 newsletters",                                           bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t83", text:"FGC: Send Ali video critique",                                                       bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t84", text:"FGC: Set up FGC WhatsApp group",                                                    bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t86", text:"FGC: Test Clio + Dropbox sync",                                                     bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"n20", text:"FGC: Ask FGC contact for a testimonial",                                             bucket:"FGC",          priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
 
     // ── VITAL HACKERS BACKLOG ─────────────────────────────────
+    { id:"t38", text:"VH: Build demo showing Claude Projects organization",                                bucket:"Vital Hackers", priority:"P1", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t39", text:"VH: Map current tools (Pix, Notion, financial mgmt)",                               bucket:"Vital Hackers", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t40", text:"VH: Set up WhatsApp auto-reply",                                                     bucket:"Vital Hackers", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t41", text:"VH: Activate abandoned cart on Shopify",                                             bucket:"Vital Hackers", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t42", text:"VH: Verify Meta Pixel + set up Looker Studio dashboard",                             bucket:"Vital Hackers", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
     { id:"t43", text:"VH: Deliver month of content once client sends videos",                              bucket:"Vital Hackers", priority:"P3", isToday:false, todayOrder:null, dueDate:null, done:false },
 
+    // ── STRIDES BACKLOG ───────────────────────────────────────
+    { id:"t44", text:"Strides: Research competitors + market positioning",                                 bucket:"Strides",      priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t45", text:"Strides: Brazil market research — Voxel Care expansion economics + mall retail analysis", bucket:"Strides", priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t47", text:"Strides: Book demos — Vertex, Voxel Care, Stride Soles",                            bucket:"Strides",      priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+
     // ── TANDEM BACKLOG ────────────────────────────────────────
     { id:"t48", text:"Tandem: Map outbound sales + LinkedIn strategy",                                     bucket:"Tandem",       priority:"P1", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t51", text:"Tandem: Send Gus AI references and materials",                                       bucket:"Tandem",       priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t52", text:"Tandem: One-pager revision — em dashes, fonts, logo palette",                        bucket:"Tandem",       priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
+    { id:"t53", text:"Tandem: Set up Google Calendar booking page",                                        bucket:"Tandem",       priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
 
     // ── SHIF ──────────────────────────────────────────────────
     { id:"t92", text:"SHIF: Follow up with parents",                                                       bucket:"SHIF",         priority:"P2", isToday:false, todayOrder:null, dueDate:null, done:false },
@@ -766,57 +791,7 @@ const CLAUDE_SYNC = {
 };
 // CLAUDE_DATA_END
 // ══════════════════════════════════════════════════════════════
-// CLAUDE_TASK_DATA — subtask seeds (Jun 18; appends only, never overwrites existing user subtasks)
-// ══════════════════════════════════════════════════════════════
-const CLAUDE_TASK_DATA = {
-  "t6":  { subtasks: [
-    { text:"Load data room with Lais files", done:false },
-    { text:"Review Lais files (Portugal Brands, Douglas) + reply with next steps", done:false }
-  ]},
-  "t97": { subtasks: [
-    { text:"Schedule demo call Alice + Ana (Thu/Fri) + fup for PPT", done:false },
-    { text:"Workflow instructions for Alice — weekly Sephora + monthly Lafayette", done:false }
-  ]},
-  "t96": { subtasks: [
-    { text:"Map billing flow — spreadsheet+AI vs Qonto", done:false }
-  ]},
-  "t26": { subtasks: [
-    { text:"Website team page: update Ali, bios, team photos, carta apresentacao (due Jul 1)", done:false },
-    { text:"Developer brief — Coastal Blue (Sherwin Williams ref) + G animation brief", done:false }
-  ]},
-  "t31": { subtasks: [
-    { text:"Begin integrations — QuickBooks to Clio to Microsoft 365", done:false },
-    { text:"Verify Clio plan for eSignature features", done:false },
-    { text:"Test Clio + Dropbox sync", done:false }
-  ]},
-  "t65": { subtasks: [
-    { text:"Send pre-approval of 3 newsletters", done:false },
-    { text:"Send Ali video critique", done:false },
-    { text:"Set up FGC WhatsApp group", done:false }
-  ]},
-  "t66": { subtasks: [
-    { text:"Research competitors + market positioning", done:false },
-    { text:"Brazil market research — Voxel Care expansion economics + mall retail analysis", done:false },
-    { text:"Book demos — Vertex, Voxel Care, Stride Soles", done:false }
-  ]},
-  "t49": { subtasks: [
-    { text:"One-pager revision — em dashes, fonts, logo palette", done:false },
-    { text:"Set up Google Calendar booking page", done:false }
-  ]},
-  "t76": { subtasks: [
-    { text:"Send Gus AI references and materials beforehand", done:false }
-  ]},
-  "t37": { subtasks: [
-    { text:"Build demo showing Claude Projects organization", done:false },
-    { text:"Map current tools (Pix, Notion, financial mgmt)", done:false }
-  ]},
-  "t15": { subtasks: [
-    { text:"KPI reporting — translate KPIs to English, upload to Claude", done:false }
-  ]},
-  "n9":  { subtasks: [
-    { text:"Ask Eric for Amazon return QR codes", done:false }
-  ]}
-};
+const CLAUDE_TASK_DATA = {};
 
 const BUCKETS = [
   { id:"HKH",            color:"#8b5cf6", label:"HKH Paris" },
